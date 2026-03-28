@@ -7,29 +7,153 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0a0c10; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1f2937; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+        body {
+            background: #0a0c10;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
         
-        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 10px;
+        }
         
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .animate-spin { animation: spin 1s linear infinite; }
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
         
-        .card-hover { transition: all 0.3s ease; }
-        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -12px rgba(59, 130, 246, 0.25); border-color: #3b82f6; }
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
         
-        .gradient-text { background: linear-gradient(135deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
         
-        img { opacity: 0; transition: opacity 0.3s ease; }
-        img.loaded { opacity: 1; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
         
-        .skeleton { background: linear-gradient(90deg, #1f2937 0%, #374151 50%, #1f2937 100%); background-size: 200% 100%; animation: skeleton 1.5s infinite; }
-        @keyframes skeleton { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.6); }
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 25px 30px -12px rgba(59, 130, 246, 0.3);
+            border-color: #3b82f6;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec489a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .menu-item {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.2), transparent);
+            transition: width 0.3s ease;
+        }
+        
+        .menu-item:hover::before {
+            width: 100%;
+        }
+        
+        img {
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        img.loaded {
+            opacity: 1;
+        }
+        
+        .skeleton {
+            background: linear-gradient(90deg, #1f2937 0%, #374151 50%, #1f2937 100%);
+            background-size: 200% 100%;
+            animation: skeleton 1.5s infinite;
+        }
+        
+        @keyframes skeleton {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .article-card {
+            animation: slideIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+        
+        .refresh-rotate {
+            transition: transform 0.5s ease;
+        }
+        .refresh-rotate:hover {
+            transform: rotate(180deg);
+        }
+        
+        .glow-effect {
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
     </style>
 </head>
 <body>
@@ -39,7 +163,7 @@
         <aside id="sidebar" class="w-72 bg-gray-900 border-r border-gray-800 flex-shrink-0 absolute md:relative z-20 h-full transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col">
             <div class="p-6 border-b border-gray-800">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center float-animation">
                         <i data-lucide="cpu" class="w-5 h-5 text-white"></i>
                     </div>
                     <div>
@@ -57,7 +181,7 @@
             <div class="p-4 border-t border-gray-800 space-y-3">
                 <div class="flex justify-between items-center text-xs">
                     <span class="text-gray-500">🔄 Rafraîchissement</span>
-                    <span id="timer" class="text-blue-400 font-mono">05:00</span>
+                    <span id="timer" class="text-blue-400 font-mono glow-effect">05:00</span>
                 </div>
                 <div class="h-1 bg-gray-800 rounded-full overflow-hidden">
                     <div id="timerProgress" class="h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-full transition-all duration-1000" style="width: 0%"></div>
@@ -73,17 +197,17 @@
             <header class="bg-gray-900/80 backdrop-blur-sm border-b border-gray-800 sticky top-0 z-10">
                 <div class="max-w-7xl mx-auto px-4 py-3">
                     <div class="flex items-center gap-4">
-                        <button onclick="toggleSidebar()" class="md:hidden text-gray-400">
+                        <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white transition">
                             <i data-lucide="menu" class="w-5 h-5"></i>
                         </button>
                         
                         <div class="flex-1 relative max-w-md">
                             <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4"></i>
                             <input type="text" id="searchInput" placeholder="Rechercher un article..." 
-                                class="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 text-sm">
+                                class="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-sm">
                         </div>
                         
-                        <button onclick="refreshCurrentCategory()" class="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition">
+                        <button onclick="refreshCurrentCategory()" class="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition refresh-rotate">
                             <i data-lucide="refresh-cw" id="refreshIcon" class="w-4 h-4"></i>
                         </button>
                     </div>
@@ -95,8 +219,8 @@
                     <div class="flex justify-between items-center mb-6">
                         <div>
                             <h2 id="categoryTitle" class="text-2xl font-bold flex items-center gap-2">
-                                <i data-lucide="activity" class="text-blue-500 w-6 h-6"></i>
-                                <span class="gradient-text">Tech & IT</span>
+                                <i data-lucide="activity" class="text-blue-500 w-6 h-6 float-animation"></i>
+                                <span class="gradient-text">Windows</span>
                             </h2>
                             <p class="text-gray-500 text-sm mt-1">Actualités technologiques françaises</p>
                         </div>
@@ -108,11 +232,11 @@
                     <div id="articlesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
                     <div id="skeletonLoader" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"></div>
                     <div id="emptyState" class="hidden flex flex-col items-center justify-center py-20">
-                        <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                        <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mb-4 animate-pulse">
                             <i data-lucide="inbox" class="w-10 h-10 text-gray-600"></i>
                         </div>
                         <p class="text-gray-400 text-lg">Aucun article trouvé</p>
-                        <button onclick="refreshCurrentCategory()" class="mt-4 px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 rounded-lg text-sm transition">
+                        <button onclick="refreshCurrentCategory()" class="mt-4 px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 rounded-lg text-sm transition-all hover:scale-105">
                             🔄 Réessayer
                         </button>
                     </div>
@@ -123,17 +247,9 @@
 
     <script>
         // ============================================
-        // SOURCES FRANÇAISES TESTÉES ET FONCTIONNELLES
+        // CATÉGORIES - Suppression de Tech & IT, ajout de Linux
         // ============================================
         const CATEGORIES = {
-            tech: {
-                name: "Tech & IT",
-                icon: "monitor",
-                feeds: [
-                    "https://www.clubic.com/feed",
-                    "https://www.lesnumeriques.com/rss/news.xml"
-                ]
-            },
             windows: {
                 name: "Windows",
                 icon: "layout-grid",
@@ -158,6 +274,15 @@
                     "https://www.iphoneaddict.fr/feed"
                 ]
             },
+            linux: {
+                name: "Linux",
+                icon: "terminal",
+                feeds: [
+                    "https://linuxfr.org/news.atom",
+                    "https://www.nextinpact.com/linux/feed",
+                    "https://www.it-connect.fr/category/linux/feed/"
+                ]
+            },
             cyber: {
                 name: "Cybersécurité",
                 icon: "shield",
@@ -168,17 +293,17 @@
             }
         };
         
-        let currentCategory = "tech";
+        let currentCategory = "windows";
         let allArticles = [];
         let isLoading = false;
         let timerSeconds = 300;
         let timerInterval = null;
         
         const DEFAULT_IMAGES = {
-            tech: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&h=400&fit=crop",
             windows: "https://images.unsplash.com/photo-1574169208507-84376144848b?w=600&h=400&fit=crop",
             android: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop",
             apple: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=600&h=400&fit=crop",
+            linux: "https://images.unsplash.com/photo-1629654291663-b91ad427698f?w=600&h=400&fit=crop",
             cyber: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&h=400&fit=crop"
         };
         
@@ -200,8 +325,8 @@
             for (const [key, cat] of Object.entries(CATEGORIES)) {
                 const isActive = key === currentCategory;
                 const button = document.createElement("button");
-                button.className = `w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all duration-200 ${
-                    isActive ? "bg-blue-500/20 text-blue-400 border-l-4 border-blue-500" : "text-gray-400 hover:bg-gray-800 hover:text-gray-200"
+                button.className = `menu-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all duration-300 ${
+                    isActive ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-400 border-l-4 border-blue-500" : "text-gray-400 hover:bg-gray-800 hover:text-gray-200 hover:translate-x-1"
                 }`;
                 button.innerHTML = `<i data-lucide="${cat.icon}" class="w-5 h-5"></i><span class="flex-1 font-medium">${cat.name}</span>`;
                 button.onclick = () => changeCategory(key);
@@ -216,7 +341,7 @@
             buildMenu();
             
             const cat = CATEGORIES[categoryKey];
-            document.getElementById("categoryTitle").innerHTML = `<i data-lucide="${cat.icon}" class="text-blue-500 w-6 h-6"></i><span class="gradient-text">${cat.name}</span>`;
+            document.getElementById("categoryTitle").innerHTML = `<i data-lucide="${cat.icon}" class="text-blue-500 w-6 h-6 float-animation"></i><span class="gradient-text">${cat.name}</span>`;
             lucide.createIcons();
             document.getElementById("searchInput").value = "";
             loadArticles();
@@ -269,7 +394,6 @@
         
         async function fetchFeed(url) {
             try {
-                // Utiliser rss2json qui est plus fiable pour le parsing RSS
                 const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
                 const response = await fetch(proxyUrl);
                 
@@ -282,7 +406,7 @@
                     return data.items.map(item => ({
                         title: cleanText(item.title),
                         link: item.link,
-                        description: cleanText(item.description || item.content || ""),
+                        description: cleanText((item.description || item.content || "").substring(0, 300)),
                         pubDate: item.pubDate,
                         imageUrl: item.thumbnail || extractImageFromText(item.description || item.content),
                         sourceName: sourceName
@@ -307,10 +431,12 @@
         
         function getSourceName(url) {
             if (url.includes("clubic")) return "Clubic";
-            if (url.includes("lesnumeriques")) return "Les Numériques";
             if (url.includes("windowscentral")) return "Windows Central";
             if (url.includes("androidcentral")) return "Android Central";
             if (url.includes("iphoneaddict")) return "iPhoneAddict";
+            if (url.includes("linuxfr")) return "LinuxFr";
+            if (url.includes("nextinpact")) return "Next INpact";
+            if (url.includes("it-connect")) return "IT-Connect";
             if (url.includes("lemondeinformatique")) return "Le Monde Informatique";
             return "Source";
         }
@@ -340,30 +466,31 @@
             const grid = document.getElementById("articlesGrid");
             grid.innerHTML = "";
             
-            const defaultImage = DEFAULT_IMAGES[currentCategory] || DEFAULT_IMAGES.tech;
+            const defaultImage = DEFAULT_IMAGES[currentCategory] || DEFAULT_IMAGES.windows;
             
-            articles.forEach((article) => {
+            articles.forEach((article, index) => {
                 const date = formatDate(article.pubDate);
                 const imageUrl = article.imageUrl && article.imageUrl.startsWith("http") ? article.imageUrl : defaultImage;
-                const description = article.description.substring(0, 150) || "Cliquez pour lire l'article complet";
+                const description = article.description || "Cliquez pour lire l'article complet";
                 const title = article.title || "Article sans titre";
                 
                 const card = document.createElement("a");
                 card.href = article.link;
                 card.target = "_blank";
                 card.rel = "noopener noreferrer";
-                card.className = "block bg-gray-900 rounded-xl overflow-hidden border border-gray-800 card-hover";
+                card.className = "article-card block bg-gray-900 rounded-xl overflow-hidden border border-gray-800 card-hover";
+                card.style.animationDelay = `${index * 0.05}s`;
                 card.innerHTML = `
                     <div class="relative h-48 overflow-hidden bg-gray-800">
                         <img src="${imageUrl}" 
                              alt="${escapeHtml(title)}"
-                             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                             class="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
                              loading="lazy"
                              onload="this.classList.add('loaded')"
                              onerror="this.src='${defaultImage}'; this.classList.add('loaded')">
-                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent"></div>
                         <div class="absolute top-3 left-3">
-                            <span class="px-2 py-1 bg-black/60 backdrop-blur-sm rounded-lg text-xs font-medium text-blue-400">
+                            <span class="px-2 py-1 bg-black/60 backdrop-blur-sm rounded-lg text-xs font-medium text-blue-400 hover:scale-105 transition-transform">
                                 ${escapeHtml(article.sourceName)}
                             </span>
                         </div>
@@ -373,15 +500,15 @@
                             <i data-lucide="calendar" class="w-3 h-3"></i>
                             <span>${date}</span>
                         </div>
-                        <h3 class="text-lg font-semibold text-white mb-2 line-clamp-2 hover:text-blue-400 transition-colors">
+                        <h3 class="text-lg font-semibold text-white mb-2 line-clamp-2 hover:text-blue-400 transition-colors duration-300">
                             ${escapeHtml(title)}
                         </h3>
                         <p class="text-sm text-gray-400 line-clamp-3">
-                            ${escapeHtml(description)}
+                            ${escapeHtml(description.substring(0, 120))}${description.length > 120 ? "..." : ""}
                         </p>
                         <div class="mt-4 pt-3 border-t border-gray-800 flex justify-between items-center">
-                            <span class="text-xs text-gray-500">📖 ${Math.max(1, Math.ceil(description.length / 500))} min</span>
-                            <span class="text-blue-400 text-sm flex items-center gap-1">Lire <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                            <span class="text-xs text-gray-500 flex items-center gap-1">📖 ${Math.max(1, Math.ceil(description.length / 500))} min</span>
+                            <span class="text-blue-400 text-sm flex items-center gap-1 group-hover:gap-2 transition-all">Lire <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
                         </div>
                     </div>
                 `;
