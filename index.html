@@ -315,14 +315,22 @@
                 const dateObj = new Date(item.pubDate);
                 const formattedDate = dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit' });
 
-                // Récupération de l'image (soit thumbnail officiel, soit première image trouvée, sinon image par défaut de code)
-                const imageUrl = item.thumbnail || extractFirstImage(item.content || item.description) || 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=400&h=200';
+                // COURS : Meilleure extraction d'image
+                // 1. thumbnail (Vignette officielle)
+                // 2. enclosure.link (Image attachée au flux RSS, très utilisé par Le Monde Informatique)
+                // 3. extractFirstImage (Cherche une balise <img> dans le texte en dernier recours)
+                let imageUrl = item.thumbnail || (item.enclosure && item.enclosure.link) || extractFirstImage(item.content || item.description);
 
-                // Création de la carte HTML
+                // Si aucune image n'est trouvée dans le flux, on met celle par défaut
+                if (!imageUrl) {
+                    imageUrl = 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=400&h=200';
+                }
+
+                // Création de la carte HTML (Correction du guillemet manquant avant 'onerror')
                 const cardHTML = `
                     <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="group flex flex-col bg-card border border-gray-800 rounded-xl overflow-hidden hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1">
                         <div class="h-40 w-full bg-gray-900 relative overflow-hidden">
-                            <img src="${imageUrl}" alt="Cover" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 onerror="this.src='https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=400&h=200'">
+                            <img src="${imageUrl}" alt="Cover" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" onerror="this.src='https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=400&h=200'">
                             <div class="absolute bottom-0 w-full h-1/2 bg-gradient-to-t from-card to-transparent"></div>
                         </div>
                         <div class="p-5 flex-1 flex flex-col">
