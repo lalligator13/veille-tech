@@ -6,8 +6,6 @@
     <title>KevTech - Veille Technologique Française</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Google Gemini API -->
-    <script src="https://cdn.jsdelivr.net/npm/@google/generative-ai@0.21.0/dist/index.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -181,78 +179,12 @@
             font-size: 1rem;
         }
         
-        .article-content h1, .article-content h2, .article-content h3 {
-            color: white;
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
-            font-weight: 600;
-        }
-        
-        .article-content h1 { font-size: 1.8rem; }
-        .article-content h2 { font-size: 1.5rem; }
-        .article-content h3 { font-size: 1.3rem; }
-        
-        .article-content a {
-            color: #3b82f6;
-            text-decoration: underline;
-        }
-        
-        .article-content ul, .article-content ol {
-            margin: 1rem 0;
-            padding-left: 2rem;
-            color: #d1d5db;
-        }
-        
-        .article-content li {
-            margin: 0.5rem 0;
-        }
-        
-        .article-content blockquote {
-            border-left: 4px solid #3b82f6;
-            padding-left: 1rem;
-            margin: 1rem 0;
-            color: #9ca3af;
-            font-style: italic;
-        }
-        
         .back-button {
             transition: all 0.3s ease;
         }
         
         .back-button:hover {
             transform: translateX(-4px);
-        }
-        
-        .key-point {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
-            border-left: 3px solid #3b82f6;
-            transition: all 0.3s ease;
-        }
-        
-        .key-point:hover {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
-            transform: translateX(4px);
-        }
-        
-        .summary-badge {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-        }
-        
-        .gemini-badge {
-            background: linear-gradient(135deg, #4285f4, #ea4335, #fbbc04, #34a853);
-        }
-        
-        .typing-animation {
-            display: inline-block;
-            overflow: hidden;
-            border-right: 2px solid #3b82f6;
-            white-space: nowrap;
-            animation: typing 0.5s steps(40, end);
-        }
-        
-        @keyframes typing {
-            from { width: 0; }
-            to { width: 100%; }
         }
     </style>
 </head>
@@ -352,7 +284,7 @@
                         </button>
                         <div id="articleContent" class="article-view bg-gray-900 rounded-2xl border border-gray-800 p-6 md:p-10">
                             <div id="articleBody">
-                                <!-- Contenu généré par Gemini -->
+                                <!-- Contenu de l'article -->
                             </div>
                         </div>
                     </div>
@@ -362,9 +294,6 @@
     </div>
 
     <script>
-        // Configuration Gemini
-        const GEMINI_API_KEY = "AIzaSyBi7o73BqYF2VowvOoC0y6ZucOfqiHoLBc"; // Clé API Gemini (à remplacer par votre clé)
-        
         const CATEGORIES = {
             tech_it: {
                 name: "Tech - IT",
@@ -398,7 +327,6 @@
         let isLoading = false;
         let timerSeconds = 300;
         let timerInterval = null;
-        let genAI = null;
         
         const DEFAULT_IMAGES = {
             tech_it: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&h=400&fit=crop",
@@ -408,25 +336,9 @@
             cyber: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&h=400&fit=crop"
         };
         
-        // Initialisation de Gemini
-        async function initGemini() {
-            try {
-                if (window.google && window.google.generativeai) {
-                    genAI = new window.google.generativeai.GoogleGenerativeAI(GEMINI_API_KEY);
-                    console.log("✅ Gemini API initialisée");
-                } else {
-                    console.log("⏳ Attente du chargement de Gemini...");
-                    setTimeout(initGemini, 500);
-                }
-            } catch (error) {
-                console.error("Erreur initialisation Gemini:", error);
-            }
-        }
-        
         function init() {
             lucide.createIcons();
             buildMenu();
-            initGemini();
             loadArticles();
             startTimer();
             document.getElementById("searchInput").addEventListener("input", filterArticles);
@@ -465,175 +377,45 @@
             document.getElementById("searchInput").placeholder = "Rechercher un article...";
         }
         
-        // Fonction d'analyse avec Gemini API
-        async function analyzeWithGemini(title, description, source) {
-            if (!genAI) {
-                return generateFallbackAnalysis(title, description, source);
-            }
-            
-            try {
-                const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-                
-                const prompt = `Analyse cet article tech français et génère un résumé concis et informatif.
-                
-Titre: ${title}
-Source: ${source}
-Contenu: ${description.substring(0, 1500)}
-
-Format de réponse attendu (en français):
-1. SYNTHESE: (3-4 phrases résumant l'essentiel)
-2. POINTS_CLES: (3-5 points importants sous forme de liste)
-3. IMPACT: (1-2 phrases sur l'impact ou les implications)
-
-Sois précis, professionnel et utilise un ton informatif.`;
-
-                const result = await model.generateContent(prompt);
-                const response = await result.response;
-                const text = response.text();
-                
-                return parseGeminiResponse(text, title, source);
-            } catch (error) {
-                console.error("Erreur Gemini:", error);
-                return generateFallbackAnalysis(title, description, source);
-            }
-        }
-        
-        function parseGeminiResponse(text, title, source) {
-            // Extraire les différentes sections
-            const synthesisMatch = text.match(/SYNTHESE:?\s*([\s\S]*?)(?=POINTS_CLES:|$)/i);
-            const keyPointsMatch = text.match(/POINTS_CLES:?\s*([\s\S]*?)(?=IMPACT:|$)/i);
-            const impactMatch = text.match(/IMPACT:?\s*([\s\S]*?)$/i);
-            
-            const synthesis = synthesisMatch ? synthesisMatch[1].trim() : "Analyse en cours...";
-            const keyPointsRaw = keyPointsMatch ? keyPointsMatch[1].trim() : "";
-            const impact = impactMatch ? impactMatch[1].trim() : "";
-            
-            // Formater les points clés
-            let keyPoints = [];
-            if (keyPointsRaw) {
-                keyPoints = keyPointsRaw.split(/\n/).filter(line => line.trim().length > 0);
-                keyPoints = keyPoints.map(p => p.replace(/^[•\-\*\d\.]+\s*/, "").trim());
-            }
-            
-            if (keyPoints.length === 0) {
-                keyPoints = ["Information détaillée dans l'article original"];
-            }
-            
-            // Générer le HTML
-            return `
-                <div class="mb-6 pb-6 border-b border-gray-800">
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="gemini-badge px-3 py-1 rounded-full text-xs text-white">✨ Gemini AI</span>
-                        <span class="text-xs text-gray-500">Analyse instantanée</span>
-                    </div>
-                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">${escapeHtml(title)}</h1>
-                    <div class="flex items-center gap-4 text-sm text-gray-500">
-                        <span class="flex items-center gap-1"><i data-lucide="globe" class="w-4 h-4"></i>${escapeHtml(source)}</span>
-                    </div>
-                </div>
-                
-                <div class="mb-8 p-5 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl border border-blue-500/20">
-                    <div class="flex items-center gap-2 mb-3">
-                        <i data-lucide="sparkles" class="w-5 h-5 text-blue-400"></i>
-                        <h2 class="text-lg font-semibold text-white">📝 Synthèse Gemini</h2>
-                    </div>
-                    <p class="text-gray-300 leading-relaxed">${escapeHtml(synthesis)}</p>
-                </div>
-                
-                <div class="mb-8">
-                    <h2 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                        <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
-                        Points clés
-                    </h2>
-                    <div class="space-y-3">
-                        ${keyPoints.map((point, idx) => `
-                            <div class="key-point p-4 rounded-lg">
-                                <div class="flex items-start gap-3">
-                                    <span class="text-blue-400 font-bold text-lg">${idx + 1}</span>
-                                    <p class="text-gray-300">${escapeHtml(point)}</p>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-                
-                ${impact ? `
-                <div class="mb-8 p-5 bg-gray-800/30 rounded-xl">
-                    <h2 class="text-lg font-semibold text-white mb-2 flex items-center gap-2">
-                        <i data-lucide="trending-up" class="w-5 h-5 text-orange-400"></i>
-                        Impact & Implications
-                    </h2>
-                    <p class="text-gray-300">${escapeHtml(impact)}</p>
-                </div>
-                ` : ''}
-                
-                <div class="mt-8 pt-6 border-t border-gray-800 text-center">
-                    <a href="${articleLink}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500/20 hover:bg-blue-500/30 rounded-lg text-blue-400 transition-all hover:gap-3">
-                        <i data-lucide="external-link" class="w-4 h-4"></i>
-                        Lire l'article original sur ${escapeHtml(source)}
-                    </a>
-                    <p class="text-xs text-gray-600 mt-3">✨ Analyse générée par Google Gemini AI</p>
-                </div>
-            `;
-        }
-        
-        function generateFallbackAnalysis(title, description, source) {
-            const cleanDesc = description.substring(0, 500);
-            const sentences = cleanDesc.split(/[.!?]+/).filter(s => s.trim().length > 30);
-            const keyPoints = sentences.slice(0, 4).map(s => s.trim());
-            
-            return `
-                <div class="mb-6 pb-6 border-b border-gray-800">
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="summary-badge px-3 py-1 rounded-full text-xs text-white">📄 Analyse rapide</span>
-                    </div>
-                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">${escapeHtml(title)}</h1>
-                    <div class="flex items-center gap-4 text-sm text-gray-500">
-                        <span class="flex items-center gap-1"><i data-lucide="globe" class="w-4 h-4"></i>${escapeHtml(source)}</span>
-                    </div>
-                </div>
-                
-                <div class="mb-8 p-5 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl">
-                    <p class="text-gray-300">${escapeHtml(cleanDesc.substring(0, 300))}...</p>
-                </div>
-                
-                <div class="mb-8">
-                    <h2 class="text-xl font-semibold text-white mb-4">Points importants</h2>
-                    <div class="space-y-3">
-                        ${keyPoints.map((point, idx) => `
-                            <div class="key-point p-4 rounded-lg">
-                                <p class="text-gray-300">${escapeHtml(point)}</p>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-                
-                <div class="mt-8 pt-6 border-t border-gray-800 text-center">
-                    <a href="${articleLink}" target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500/20 hover:bg-blue-500/30 rounded-lg text-blue-400 transition-all">
-                        Lire l'article original
-                    </a>
-                </div>
-            `;
-        }
-        
-        async function showArticle(article) {
+        function showArticle(article) {
             document.getElementById("listView").classList.add("hidden");
             document.getElementById("articleView").classList.remove("hidden");
             document.getElementById("searchInput").disabled = true;
-            document.getElementById("searchInput").placeholder = "Analyse Gemini en cours...";
+            document.getElementById("searchInput").placeholder = "Lecture en cours...";
             
             const articleBody = document.getElementById("articleBody");
             articleBody.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-20">
                     <div class="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-                    <p class="text-gray-400">🤖 Gemini analyse l'article...</p>
-                    <p class="text-gray-500 text-sm mt-2">Génération du résumé intelligent</p>
+                    <p class="text-gray-400">Chargement de l'article...</p>
                 </div>
             `;
             
-            const analysisHTML = await analyzeWithGemini(article.title, article.description, article.sourceName);
-            articleBody.innerHTML = analysisHTML;
-            lucide.createIcons({ root: articleBody });
+            // Afficher le contenu de l'article depuis le flux
+            setTimeout(() => {
+                const date = formatDate(article.pubDate);
+                const content = article.description || "Contenu non disponible";
+                
+                articleBody.innerHTML = `
+                    <div class="mb-6 pb-6 border-b border-gray-800">
+                        <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">${escapeHtml(article.title)}</h1>
+                        <div class="flex items-center gap-4 text-sm text-gray-500">
+                            <span class="flex items-center gap-1"><i data-lucide="globe" class="w-4 h-4"></i>${escapeHtml(article.sourceName)}</span>
+                            <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-4 h-4"></i>${date}</span>
+                        </div>
+                    </div>
+                    <div class="article-content">
+                        ${content}
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-gray-800 text-center">
+                        <a href="${article.link}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-500/20 hover:bg-blue-500/30 rounded-lg text-blue-400 transition-all hover:gap-3">
+                            <i data-lucide="external-link" class="w-4 h-4"></i>
+                            Lire l'article original sur ${escapeHtml(article.sourceName)}
+                        </a>
+                    </div>
+                `;
+                lucide.createIcons({ root: articleBody });
+            }, 500);
         }
         
         async function loadArticles() {
@@ -701,7 +483,7 @@ Sois précis, professionnel et utilise un ton informatif.`;
                         return {
                             title: cleanText(item.title),
                             link: item.link,
-                            description: cleanText((item.description || item.content || "").substring(0, 1500)),
+                            description: cleanText(item.description || item.content || ""),
                             pubDate: item.pubDate,
                             imageUrl: imageUrl,
                             sourceName: sourceName
@@ -763,7 +545,7 @@ Sois précis, professionnel et utilise un ton informatif.`;
                         <p class="text-sm text-gray-400 line-clamp-3">${escapeHtml(description.substring(0, 120))}${description.length > 120 ? "..." : ""}</p>
                         <div class="mt-4 pt-3 border-t border-gray-800 flex justify-between items-center">
                             <span class="text-xs text-gray-500">📖 ${Math.max(1, Math.ceil(description.length / 500))} min</span>
-                            <span class="text-blue-400 text-sm flex items-center gap-1">✨ Analyse Gemini <i data-lucide="sparkles" class="w-3 h-3"></i></span>
+                            <span class="text-blue-400 text-sm flex items-center gap-1">Lire l'article <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
                         </div>
                     </div>
                 `;
