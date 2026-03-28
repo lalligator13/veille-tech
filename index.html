@@ -163,20 +163,62 @@
         .article-content {
             max-width: 900px;
             margin: 0 auto;
+            color: #ffffff !important;
         }
         
-        .article-content img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 12px;
-            margin: 20px 0;
+        .article-content * {
+            color: #ffffff !important;
         }
         
         .article-content p {
             margin-bottom: 1.2rem;
             line-height: 1.7;
-            color: #d1d5db;
             font-size: 1rem;
+            color: #ffffff !important;
+        }
+        
+        .article-content h1, .article-content h2, .article-content h3, .article-content h4 {
+            color: #ffffff !important;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .article-content h1 { font-size: 1.8rem; }
+        .article-content h2 { font-size: 1.5rem; }
+        .article-content h3 { font-size: 1.3rem; }
+        
+        .article-content a {
+            color: #3b82f6 !important;
+            text-decoration: underline;
+        }
+        
+        .article-content ul, .article-content ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+            color: #ffffff !important;
+        }
+        
+        .article-content li {
+            margin: 0.5rem 0;
+            color: #ffffff !important;
+        }
+        
+        .article-content blockquote {
+            border-left: 4px solid #3b82f6;
+            padding-left: 1rem;
+            margin: 1rem 0;
+            color: #d1d5db !important;
+            font-style: italic;
+        }
+        
+        .article-content strong, .article-content b {
+            color: #ffffff !important;
+            font-weight: 700;
+        }
+        
+        .article-content em, .article-content i {
+            color: #e5e7eb !important;
         }
         
         .back-button {
@@ -185,6 +227,15 @@
         
         .back-button:hover {
             transform: translateX(-4px);
+        }
+        
+        /* Style pour le contenu chargé */
+        #articleBody {
+            color: #ffffff;
+        }
+        
+        #articleBody p, #articleBody span, #articleBody div, #articleBody li {
+            color: #ffffff;
         }
     </style>
 </head>
@@ -391,7 +442,6 @@
                 </div>
             `;
             
-            // Afficher le contenu de l'article depuis le flux
             setTimeout(() => {
                 const date = formatDate(article.pubDate);
                 const content = article.description || "Contenu non disponible";
@@ -399,12 +449,12 @@
                 articleBody.innerHTML = `
                     <div class="mb-6 pb-6 border-b border-gray-800">
                         <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">${escapeHtml(article.title)}</h1>
-                        <div class="flex items-center gap-4 text-sm text-gray-500">
+                        <div class="flex items-center gap-4 text-sm text-gray-300">
                             <span class="flex items-center gap-1"><i data-lucide="globe" class="w-4 h-4"></i>${escapeHtml(article.sourceName)}</span>
                             <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-4 h-4"></i>${date}</span>
                         </div>
                     </div>
-                    <div class="article-content">
+                    <div class="article-content text-white">
                         ${content}
                     </div>
                     <div class="mt-8 pt-6 border-t border-gray-800 text-center">
