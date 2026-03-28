@@ -326,11 +326,11 @@
                     imageUrl = 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=400&h=200';
                 }
 
-                // Création de la carte HTML (Correction du guillemet manquant avant 'onerror')
+                // Création de la carte HTML (Ajout de referrerpolicy="no-referrer" magique)
                 const cardHTML = `
                     <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="group flex flex-col bg-card border border-gray-800 rounded-xl overflow-hidden hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1">
                         <div class="h-40 w-full bg-gray-900 relative overflow-hidden">
-                            <img src="${imageUrl}" alt="Cover" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" onerror="this.src='https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=400&h=200'">
+                            <img src="${imageUrl}" alt="Cover" referrerpolicy="no-referrer" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" onerror="this.src='https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=400&h=200'">
                             <div class="absolute bottom-0 w-full h-1/2 bg-gradient-to-t from-card to-transparent"></div>
                         </div>
                         <div class="p-5 flex-1 flex flex-col">
@@ -375,8 +375,21 @@
 
         function extractFirstImage(htmlContent) {
             if(!htmlContent) return null;
-            const match = htmlContent.match(/<img[^>]+src="([^">]+)"/);
-            return match ? match[1] : null;
+            // COURS : Remplacement de l'ancienne "Regex" par le DOM Parser
+            const tmp = document.createElement("DIV");
+            tmp.innerHTML = htmlContent;
+            
+            // On demande au navigateur de trouver la première balise image
+            const img = tmp.querySelector("img");
+            
+            if (img) {
+                const src = img.getAttribute("src");
+                // On s'assure que c'est un vrai lien valide complet (qui commence par http)
+                if (src && src.startsWith("http")) {
+                    return src;
+                }
+            }
+            return null;
         }
 
         function showLoader() {
