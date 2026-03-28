@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KevTech - Portail de Veille IT</title>
+    <!-- Intégration de Tailwind CSS via CDN pour un design moderne et rapide -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configuration de Tailwind pour notre thème personnalisé
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0b1220',
+                        darker: '#020617',
+                        card: '#1e293b',
+                        primary: '#38bdf8'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Intégration des icônes Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Quelques styles personnalisés pour la barre de défilement et les transitions */
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 300ms; }
+    </style>
+</head>
+<body class="bg-dark text-gray-200 flex h-screen overflow-hidden">
+
+    <!-- Sidebar (Menu latéral) -->
+    <!-- Sur mobile, il est caché par défaut (-translate-x-full), sur PC il est toujours là (md:translate-x-0) -->
+    <aside id="sidebar" class="bg-darker w-64 border-r border-gray-800 flex-shrink-0 absolute md:relative z-20 h-full transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+        <div class="p-6 flex items-center justify-between border-b border-gray-800">
+            <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+                <i data-lucide="cpu" class="text-primary"></i> KevTech
+            </h1>
+            <!-- Bouton pour fermer le menu sur mobile -->
+            <button onclick="toggleMenu()" class="md:hidden text-gray-400 hover:text-white">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        
+        <nav class="p-4 space-y-2" id="menu-container">
+            <!-- Les éléments du menu seront générés ici par JavaScript -->
+        </nav>
+
+        <div class="absolute bottom-0 w-full p-4 border-t border-gray-800 text-xs text-gray-500 text-center">
+            Veille auto-actualisée (24h)
+        </div>
+    </aside>
+
+    <!-- Overlay sombre pour mobile quand le menu est ouvert -->
+    <div id="sidebar-overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/50 z-10 hidden md:hidden"></div>
+
+    <!-- Contenu Principal -->
+    <main class="flex-1 flex flex-col h-full relative">
+        <!-- En-tête (Header) -->
+        <header class="bg-darker/80 backdrop-blur-md border-b border-gray-800 p-4 sticky top-0 z-10">
+            <div class="flex items-center justify-between max-w-7xl mx-auto gap-4">
+                <div class="flex items-center gap-4 flex-1">
+                    <button onclick="toggleMenu()" class="md:hidden text-gray-300 hover:text-white focus:outline-none">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    
+                    <!-- Barre de recherche moderne -->
+                    <div class="relative flex-1 max-w-md">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="text-gray-500 w-4 h-4"></i>
+                        </div>
+                        <input type="text" id="search" onkeyup="filterArticles()" placeholder="Rechercher un article..." 
+                            class="block w-full pl-10 pr-3 py-2 border border-gray-700 rounded-lg leading-5 bg-gray-900 text-gray-300 placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary sm:text-sm transition-colors">
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <span id="status-indicator" class="flex h-3 w-3 relative" title="Statut de la connexion">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    </span>
+                    <button onclick="loadCurrentCategory()" class="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-gray-300" title="Rafraîchir">
+                        <i data-lucide="refresh-cw" class="w-4 h-4" id="refresh-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Zone d'affichage des articles -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-6" id="main-scroll">
+            <div class="max-w-7xl mx-auto">
+                
+                <!-- En-tête de catégorie dynamique -->
+                <div class="flex items-center justify-between mb-6">
+                    <h2 id="category-title" class="text-xl md:text-2xl font-semibold text-white capitalize flex items-center gap-2">
+                        <i data-lucide="activity" class="text-primary"></i> À la une
+                    </h2>
+                    <span id="article-count" class="text-sm text-gray-400">0 articles</span>
+                </div>
+
+                <!-- Grille des articles (Responsive: 1 col mobile, 2 tablettes, 3 PC) -->
+                <div id="feed" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <!-- Les cartes seront injectées ici -->
+                </div>
+
+                <!-- État de chargement (Skeleton) -->
+                <div id="loader" class="hidden grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <!-- Squelettes générés en JS -->
+                </div>
+                
+                <!-- Message si aucun article -->
+                <div id="empty-state" class="hidden flex-col items-center justify-center py-20 text-gray-500">
+                    <i data-lucide="inbox" class="w-16 h-16 mb-4 opacity-50"></i>
+                    <p class="text-lg">Aucun article trouvé.</p>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --------------------------------------------------------
+        // 1. CONFIGURATION DES DONNÉES
+        // --------------------------------------------------------
+        const categories = {
+            it: { icon: 'monitor', label: 'Tech & IT', feeds: [
+                "https://www.it-connect.fr/feed/",
+                "https://www.lemondelinformatique.fr/flux-rss/thematique/toutes-les-actualites/rss.xml"
+            ]},
+            windows: { icon: 'layout-grid', label: 'Windows', feeds: [
+                "https://www.frandroid.com/marques/microsoft/feed",
+                "https://www.generation-nt.com/rss/actualites.xml"
+            ]},
+            android: { icon: 'smartphone', label: 'Android', feeds: ["https://www.frandroid.com/feed"] },
+            iphone: { icon: 'apple', label: 'Apple / iPhone', feeds: [
+                "https://iphonesoft.fr/rss.xml",
+                "https://www.frandroid.com/marques/apple/feed"
+            ]},
+            cyber: { icon: 'shield-alert', label: 'Cybersécurité', feeds: [
+                "https://www.zataz.com/feed/",
+                "https://www.undernews.fr/feed"
+            ]}
+        };
+
+        let currentCategoryKey = 'it';
+        let allCurrentArticles = []; // Stocke les articles pour la recherche locale
+
+        // --------------------------------------------------------
+        // 2. INITIALISATION DE L'INTERFACE
+        // --------------------------------------------------------
+        function initApp() {
+            lucide.createIcons(); // Initialise les icônes
+            buildMenu();
+            changeCategory('it');
+            
+            // Rafraîchissement automatique toutes les 24 heures (86 400 000 ms)
+            // Calcul : 24h * 60m * 60s * 1000ms
+            setInterval(loadCurrentCategory, 86400000); 
+        }
+
+        // Construction dynamique du menu latéral
+        function buildMenu() {
+            const menuContainer = document.getElementById('menu-container');
+            menuContainer.innerHTML = '';
+
+            for (const [key, data] of Object.entries(categories)) {
+                const btn = document.createElement('button');
+                btn.className = `w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors menu-item ${key === currentCategoryKey ? 'bg-gray-800 text-white border-l-4 border-primary' : 'text-gray-400 hover:bg-gray-800/50 hover:text-gray-200'}`;
+                btn.dataset.key = key;
+                btn.onclick = () => { changeCategory(key); toggleMenu(true); }; // toggleMenu(true) force la fermeture sur mobile
+                
+                btn.innerHTML = `
+                    <i data-lucide="${data.icon}" class="w-5 h-5"></i>
+                    <span class="font-medium">${data.label}</span>
+                `;
+                menuContainer.appendChild(btn);
+            }
+            lucide.createIcons({ root: menuContainer });
+        }
+
+        // Gestion du menu sur mobile (Ouverture/Fermeture)
+        function toggleMenu(forceClose = false) {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            if (forceClose || !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            } else {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            }
+        }
+
+        // --------------------------------------------------------
+        // 3. LOGIQUE MÉTIER (RÉCUPÉRATION DES DONNÉES)
+        // --------------------------------------------------------
+        function changeCategory(key) {
+            currentCategoryKey = key;
+            
+            // Mise à jour visuelle du menu
+            document.querySelectorAll('.menu-item').forEach(el => {
+                if (el.dataset.key === key) {
+                    el.className = 'w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors menu-item bg-gray-800 text-white border-l-4 border-primary';
+                } else {
+                    el.className = 'w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors menu-item text-gray-400 hover:bg-gray-800/50 hover:text-gray-200 border-l-4 border-transparent';
+                }
+            });
+
+            // Mise à jour du titre
+            const catData = categories[key];
+            document.getElementById('category-title').innerHTML = `<i data-lucide="${catData.icon}" class="text-primary w-6 h-6"></i> ${catData.label}`;
+            lucide.createIcons();
+            
+            // Réinitialiser la recherche et scroller en haut
+            document.getElementById('search').value = '';
+            document.getElementById('main-scroll').scrollTo(0,0);
+
+            loadCurrentCategory();
+        }
+
+        async function loadCurrentCategory() {
+            const feedContainer = document.getElementById("feed");
+            const loader = document.getElementById("loader");
+            const emptyState = document.getElementById("empty-state");
+            const refreshIcon = document.getElementById("refresh-icon");
+            const statusIndicator = document.getElementById("status-indicator").children[1];
+
+            // Animation de chargement
+            feedContainer.innerHTML = "";
+            emptyState.classList.add("hidden");
+            refreshIcon.classList.add("animate-spin");
+            showLoader();
+
+            const urls = categories[currentCategoryKey].feeds;
+            allCurrentArticles = [];
+
+            try {
+                // COURS : Utilisation de Promise.all()
+                // Au lieu de faire une boucle for et d'attendre chaque flux un par un (ce qui est lent),
+                // on lance toutes les requêtes en même temps et on attend qu'elles soient TOUTES terminées.
+                const fetchPromises = urls.map(url => {
+                    const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
+                    return fetch(proxyUrl).then(res => res.json());
+                });
+
+                const responses = await Promise.all(fetchPromises);
+
+                // Compilation de tous les articles
+                responses.forEach(data => {
+                    if (data && data.status === "ok" && data.items) {
+                        // On ajoute un attribut 'sourceName' pour savoir de quel site ça vient
+                        const sourceName = extractHostname(data.feed.link || url);
+                        const itemsWithSource = data.items.map(item => ({ ...item, sourceName }));
+                        allCurrentArticles = allCurrentArticles.concat(itemsWithSource);
+                    }
+                });
+
+                // Tri chronologique (du plus récent au plus ancien)
+                allCurrentArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+                // Affichage
+                renderArticles(allCurrentArticles);
+                
+                // Statut visuel
+                statusIndicator.className = "relative inline-flex rounded-full h-3 w-3 bg-green-500";
+                document.getElementById('status-indicator').title = "Synchronisé à " + new Date().toLocaleTimeString();
+
+            } catch (err) {
+                console.error("Erreur de chargement des flux :", err);
+                statusIndicator.className = "relative inline-flex rounded-full h-3 w-3 bg-red-500";
+                document.getElementById('status-indicator').title = "Erreur de connexion";
+                if(allCurrentArticles.length === 0) {
+                    emptyState.classList.remove("hidden");
+                    emptyState.innerHTML = '<i data-lucide="alert-triangle" class="w-16 h-16 mb-4 text-red-500"></i><p class="text-lg">Erreur lors de la récupération des flux.</p>';
+                    lucide.createIcons();
+                }
+            } finally {
+                hideLoader();
+                refreshIcon.classList.remove("animate-spin");
+                document.getElementById("article-count").textContent = `${allCurrentArticles.length} articles`;
+            }
+        }
+
+        // --------------------------------------------------------
+        // 4. RENDU VISUEL ET UTILITAIRES
+        // --------------------------------------------------------
+        
+        // Affiche la liste d'articles donnée (utilisé pour l'affichage initial et la recherche)
+        function renderArticles(articles) {
+            const feedContainer = document.getElementById("feed");
+            const emptyState = document.getElementById("empty-state");
+            feedContainer.innerHTML = "";
+
+            if (articles.length === 0) {
+                emptyState.classList.remove("hidden");
+                return;
+            }
+
+            emptyState.classList.add("hidden");
+
+            articles.forEach(item => {
+                // Nettoyage de la description pour éviter les balises HTML cassées dans les cartes
+                const cleanDescription = stripHtml(item.description).substring(0, 150) + '...';
+                
+                // Formatage de la date locale
+                const dateObj = new Date(item.pubDate);
+                const formattedDate = dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit' });
+
+                // Récupération de l'image (soit thumbnail officiel, soit première image trouvée, sinon image par défaut de code)
+                const imageUrl = item.thumbnail || extractFirstImage(item.content || item.description) || 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=400&h=200';
+
+                // Création de la carte HTML
+                const cardHTML = `
+                    <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="group flex flex-col bg-card border border-gray-800 rounded-xl overflow-hidden hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1">
+                        <div class="h-40 w-full bg-gray-900 relative overflow-hidden">
+                            <img src="${imageUrl}" alt="Cover" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 onerror="this.src='https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=400&h=200'">
+                            <div class="absolute bottom-0 w-full h-1/2 bg-gradient-to-t from-card to-transparent"></div>
+                        </div>
+                        <div class="p-5 flex-1 flex flex-col">
+                            <div class="flex items-center justify-between text-xs text-primary font-medium mb-2">
+                                <span class="flex items-center gap-1"><i data-lucide="globe" class="w-3 h-3"></i> ${item.sourceName}</span>
+                                <span class="text-gray-500">${formattedDate}</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-white leading-tight mb-2 group-hover:text-primary transition-colors">${item.title}</h3>
+                            <p class="text-sm text-gray-400 line-clamp-2 mt-auto">${cleanDescription}</p>
+                        </div>
+                    </a>
+                `;
+                feedContainer.insertAdjacentHTML('beforeend', cardHTML);
+            });
+            lucide.createIcons(); // Recréer les icônes pour les nouvelles cartes
+        }
+
+        // Fonction de filtrage local (Barre de recherche)
+        function filterArticles() {
+            const query = document.getElementById("search").value.toLowerCase();
+            const filtered = allCurrentArticles.filter(item => 
+                item.title.toLowerCase().includes(query) || 
+                (item.description && item.description.toLowerCase().includes(query))
+            );
+            renderArticles(filtered);
+            document.getElementById("article-count").textContent = `${filtered.length} résultats`;
+        }
+
+        // --- Fonctions Utilitaires ---
+
+        function extractHostname(url) {
+            try { return new URL(url).hostname.replace('www.', ''); } 
+            catch { return "Source IT"; }
+        }
+
+        function stripHtml(html) {
+            if(!html) return "";
+            let tmp = document.createElement("DIV");
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || "";
+        }
+
+        function extractFirstImage(htmlContent) {
+            if(!htmlContent) return null;
+            const match = htmlContent.match(/<img[^>]+src="([^">]+)"/);
+            return match ? match[1] : null;
+        }
+
+        function showLoader() {
+            const loader = document.getElementById("loader");
+            loader.innerHTML = '';
+            loader.classList.remove("hidden");
+            // Génère 6 fausses cartes clignotantes (Skeletons)
+            for(let i=0; i<6; i++) {
+                loader.innerHTML += `
+                    <div class="bg-card border border-gray-800 rounded-xl overflow-hidden animate-pulse">
+                        <div class="h-40 bg-gray-800/50"></div>
+                        <div class="p-5 space-y-3">
+                            <div class="h-3 bg-gray-800 rounded w-1/3"></div>
+                            <div class="h-5 bg-gray-700 rounded w-full"></div>
+                            <div class="h-5 bg-gray-700 rounded w-5/6"></div>
+                            <div class="h-3 bg-gray-800 rounded w-full mt-4"></div>
+                            <div class="h-3 bg-gray-800 rounded w-2/3"></div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function hideLoader() {
+            document.getElementById("loader").classList.add("hidden");
+        }
+
+        // Lancement de l'application
+        document.addEventListener('DOMContentLoaded', initApp);
+
+    </script>
+</body>
+</html>
