@@ -247,31 +247,32 @@
 
     <script>
         // ============================================
-        // CATÉGORIES - Suppression de Tech & IT, ajout de Linux
+        // CATÉGORIES - UNIQUEMENT DES SOURCES FRANÇAISES
         // ============================================
         const CATEGORIES = {
             windows: {
                 name: "Windows",
                 icon: "layout-grid",
                 feeds: [
-                    "https://www.clubic.com/os/windows/feed",
-                    "https://www.windowscentral.com/feed"
+                    "https://www.it-connect.fr/category/windows-11/feed/",
+                    "https://www.it-connect.fr/category/windows-10/feed/",
+                    "https://www.crabe-info.com/feed/"
                 ]
             },
             android: {
                 name: "Android",
                 icon: "smartphone",
                 feeds: [
-                    "https://www.clubic.com/telecom/telephonie-android/feed",
-                    "https://www.androidcentral.com/feed"
+                    "https://www.frandroid.com/feed",
+                    "https://www.phonandroid.com/feed"
                 ]
             },
             apple: {
                 name: "Apple",
                 icon: "apple",
                 feeds: [
-                    "https://www.clubic.com/telecom/telephonie-ios/feed",
-                    "https://www.iphoneaddict.fr/feed"
+                    "https://www.iphoneaddict.fr/feed",
+                    "https://www.mac4ever.com/feed"
                 ]
             },
             linux: {
@@ -279,16 +280,16 @@
                 icon: "terminal",
                 feeds: [
                     "https://linuxfr.org/news.atom",
-                    "https://www.nextinpact.com/linux/feed",
-                    "https://www.it-connect.fr/category/linux/feed/"
+                    "https://www.it-connect.fr/category/linux/feed/",
+                    "https://www.nextinpact.com/linux/feed"
                 ]
             },
             cyber: {
                 name: "Cybersécurité",
                 icon: "shield",
                 feeds: [
-                    "https://www.clubic.com/securite-informatique/feed",
-                    "https://www.lemondeinformatique.fr/flux-rss/thematique/securite/rss.xml"
+                    "https://www.it-connect.fr/category/cybersecurite/feed/",
+                    "https://www.zataz.com/feed/"
                 ]
             }
         };
@@ -430,14 +431,15 @@
         }
         
         function getSourceName(url) {
-            if (url.includes("clubic")) return "Clubic";
-            if (url.includes("windowscentral")) return "Windows Central";
-            if (url.includes("androidcentral")) return "Android Central";
+            if (url.includes("it-connect")) return "IT-Connect";
+            if (url.includes("crabe-info")) return "Crabe Info";
+            if (url.includes("frandroid")) return "Frandroid";
+            if (url.includes("phonandroid")) return "PhonAndroid";
             if (url.includes("iphoneaddict")) return "iPhoneAddict";
+            if (url.includes("mac4ever")) return "Mac4Ever";
             if (url.includes("linuxfr")) return "LinuxFr";
             if (url.includes("nextinpact")) return "Next INpact";
-            if (url.includes("it-connect")) return "IT-Connect";
-            if (url.includes("lemondeinformatique")) return "Le Monde Informatique";
+            if (url.includes("zataz")) return "Zataz";
             return "Source";
         }
         
@@ -459,6 +461,8 @@
             cleaned = cleaned.replace(/&lsquo;/g, "'");
             cleaned = cleaned.replace(/&ldquo;/g, '"');
             cleaned = cleaned.replace(/&rdquo;/g, '"');
+            cleaned = cleaned.replace(/&oeil;/g, "œil");
+            cleaned = cleaned.replace(/&euro;/g, "€");
             return cleaned.trim();
         }
         
