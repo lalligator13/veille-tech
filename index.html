@@ -3,228 +3,334 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KevTech - Portail de Veille IT</title>
-    <!-- Intégration de Tailwind CSS via CDN pour un design moderne et rapide -->
+    <title>KevTech - Veille Technologique Française</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // Configuration de Tailwind pour notre thème personnalisé
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        dark: '#0b1220',
-                        darker: '#020617',
-                        card: '#1e293b',
-                        primary: '#38bdf8'
+                        dark: '#0a0c10',
+                        darker: '#050608',
+                        card: '#111316',
+                        cardHover: '#1a1d23',
+                        primary: '#3b82f6',
+                        primaryDark: '#2563eb',
+                        secondary: '#8b5cf6'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
                     }
                 }
             }
         }
     </script>
-    <!-- Intégration des icônes Lucide -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* Quelques styles personnalisés pour la barre de défilement et les transitions */
-        body { font-family: 'Inter', system-ui, sans-serif; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #020617; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
-        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 300ms; }
-        
-        /* Animation de chargement */
-        @keyframes shimmer {
-            0% { background-position: -1000px 0; }
-            100% { background-position: 1000px 0; }
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #3b82f6 #1e1e2e;
         }
+        
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1e1e2e;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2563eb;
+        }
+        
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+        
         .shimmer {
             animation: shimmer 2s infinite;
-            background: linear-gradient(90deg, #1e293b 0%, #334155 50%, #1e293b 100%);
+            background: linear-gradient(90deg, #1a1d23 0%, #2a2d35 50%, #1a1d23 100%);
             background-size: 1000px 100%;
         }
         
-        /* Style pour les images qui ne chargent pas */
-        img.image-fallback {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .glass-effect {
+            background: rgba(5, 6, 8, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
         }
         
-        /* Tooltip personnalisé */
-        [data-tooltip] {
+        .card-hover-effect {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover-effect:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -12px rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .image-loader {
             position: relative;
-            cursor: pointer;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
         }
-        [data-tooltip]:before {
-            content: attr(data-tooltip);
+        
+        .image-loader::after {
+            content: '';
             position: absolute;
-            bottom: 100%;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            padding: 4px 8px;
-            background: #1e293b;
-            color: white;
-            font-size: 12px;
-            border-radius: 4px;
-            white-space: nowrap;
-            display: none;
-            z-index: 10;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
         }
-        [data-tooltip]:hover:before {
-            display: block;
+        
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        img.loaded {
+            opacity: 1;
+        }
+        
+        img {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        img.loaded {
+            opacity: 1;
         }
     </style>
 </head>
-<body class="bg-dark text-gray-200 flex h-screen overflow-hidden">
+<body class="bg-dark text-gray-200">
 
-    <!-- Sidebar (Menu latéral) -->
-    <aside id="sidebar" class="bg-darker w-64 border-r border-gray-800 flex-shrink-0 absolute md:relative z-20 h-full transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col">
-        <div class="p-6 flex items-center justify-between border-b border-gray-800">
-            <h1 class="text-2xl font-bold text-white flex items-center gap-2">
-                <i data-lucide="cpu" class="text-primary"></i> KevTech
-            </h1>
-            <button onclick="toggleMenu()" class="md:hidden text-gray-400 hover:text-white">
-                <i data-lucide="x"></i>
-            </button>
-        </div>
-        
-        <nav class="p-4 space-y-2 flex-1 overflow-y-auto" id="menu-container">
-            <!-- Les éléments du menu seront générés ici par JavaScript -->
-        </nav>
-
-        <div class="w-full p-4 border-t border-gray-800 text-xs text-gray-500 text-center mt-auto">
-            <div class="flex flex-col gap-1">
-                <span>🔄 Veille auto-actualisée</span>
-                <span id="last-update" class="text-gray-600">Dernière mise à jour: --:--</span>
-            </div>
-        </div>
-    </aside>
-
-    <div id="sidebar-overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/50 z-10 hidden md:hidden"></div>
-
-    <!-- Contenu Principal -->
-    <main class="flex-1 flex flex-col h-full relative">
-        <header class="bg-darker/80 backdrop-blur-md border-b border-gray-800 p-4 sticky top-0 z-10">
-            <div class="flex items-center justify-between max-w-7xl mx-auto gap-4">
-                <div class="flex items-center gap-4 flex-1">
-                    <button onclick="toggleMenu()" class="md:hidden text-gray-300 hover:text-white focus:outline-none">
-                        <i data-lucide="menu"></i>
-                    </button>
-                    
-                    <div class="relative flex-1 max-w-md">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-lucide="search" class="text-gray-500 w-4 h-4"></i>
-                        </div>
-                        <input type="text" id="search" onkeyup="filterArticles()" placeholder="Rechercher un article (titre, description)..." 
-                            class="block w-full pl-10 pr-3 py-2 border border-gray-700 rounded-lg leading-5 bg-gray-900 text-gray-300 placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary sm:text-sm transition-colors">
-                    </div>
-                </div>
-
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Moderne -->
+        <aside id="sidebar" class="bg-darker/95 backdrop-blur-sm w-72 border-r border-gray-800/50 flex-shrink-0 absolute md:relative z-20 h-full transform -translate-x-full md:translate-x-0 transition-all duration-300 flex flex-col">
+            <div class="p-6 flex items-center justify-between border-b border-gray-800/50">
                 <div class="flex items-center gap-3">
-                    <div class="flex items-center gap-2" data-tooltip="Statut de la connexion">
-                        <span id="status-indicator" class="flex h-3 w-3 relative">
-                            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                        </span>
+                    <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center animate-float">
+                        <i data-lucide="cpu" class="text-white w-5 h-5"></i>
                     </div>
-                    <button onclick="loadCurrentCategory()" class="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-gray-300" title="Rafraîchir">
-                        <i data-lucide="refresh-cw" class="w-4 h-4" id="refresh-icon"></i>
-                    </button>
-                </div>
-            </div>
-        </header>
-
-        <div class="flex-1 overflow-y-auto p-4 md:p-6" id="main-scroll">
-            <div class="max-w-7xl mx-auto">
-                
-                <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
-                    <h2 id="category-title" class="text-xl md:text-2xl font-semibold text-white capitalize flex items-center gap-2">
-                        <i data-lucide="activity" class="text-primary"></i> À la une
-                    </h2>
-                    <div class="flex items-center gap-4">
-                        <span id="article-count" class="text-sm text-gray-400">0 articles</span>
-                        <button id="sort-btn" onclick="toggleSort()" class="text-xs bg-gray-800 px-3 py-1 rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-1">
-                            <i data-lucide="arrow-up-down" class="w-3 h-3"></i>
-                            <span>Date</span>
-                        </button>
+                    <div>
+                        <h1 class="text-xl font-bold gradient-text">KevTech</h1>
+                        <p class="text-xs text-gray-500">Veille IT Française</p>
                     </div>
                 </div>
-
-                <div id="feed" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    <!-- Les cartes seront injectées ici -->
-                </div>
-
-                <div id="loader" class="hidden grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    <!-- Squelettes générés en JS -->
-                </div>
-                
-                <div id="empty-state" class="hidden flex-col items-center justify-center py-20 text-gray-500">
-                    <i data-lucide="inbox" class="w-16 h-16 mb-4 opacity-50"></i>
-                    <p class="text-lg">Aucun article trouvé.</p>
-                    <p class="text-sm mt-2">Essayez de modifier votre recherche ou rafraîchissez la page.</p>
-                </div>
-
-                <!-- Bouton retour en haut -->
-                <button id="scroll-top" onclick="scrollToTop()" class="fixed bottom-6 right-6 bg-primary/20 hover:bg-primary/30 backdrop-blur-md p-3 rounded-full transition-all hidden">
-                    <i data-lucide="arrow-up" class="w-5 h-5 text-primary"></i>
+                <button onclick="toggleMenu()" class="md:hidden text-gray-400 hover:text-white">
+                    <i data-lucide="x"></i>
                 </button>
-
             </div>
-        </div>
-    </main>
+            
+            <nav class="p-4 space-y-2 flex-1 overflow-y-auto" id="menu-container"></nav>
+
+            <div class="p-4 border-t border-gray-800/50 space-y-3">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="text-gray-500">🔄 Mise à jour</span>
+                    <span id="countdown" class="text-primary font-mono">05:00</span>
+                </div>
+                <div class="w-full bg-gray-800/50 rounded-full h-1 overflow-hidden">
+                    <div id="progress-bar" class="bg-gradient-to-r from-primary to-secondary h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+                </div>
+                <div class="text-center text-xs text-gray-600" id="last-update">
+                    Dernière synchro: --
+                </div>
+            </div>
+        </aside>
+
+        <div id="sidebar-overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/70 z-10 hidden md:hidden"></div>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-full relative overflow-hidden">
+            <header class="glass-effect sticky top-0 z-10">
+                <div class="max-w-7xl mx-auto px-4 py-3">
+                    <div class="flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-4 flex-1">
+                            <button onclick="toggleMenu()" class="md:hidden text-gray-300 hover:text-white">
+                                <i data-lucide="menu"></i>
+                            </button>
+                            
+                            <div class="relative flex-1 max-w-lg">
+                                <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4"></i>
+                                <input type="text" id="search" onkeyup="filterArticles()" 
+                                    placeholder="Rechercher un article..." 
+                                    class="w-full pl-10 pr-4 py-2.5 bg-gray-900/50 border border-gray-700 rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <div class="relative">
+                                <div class="flex items-center gap-2 px-3 py-2 bg-gray-900/50 rounded-xl">
+                                    <div class="relative">
+                                        <div id="status-dot" class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                        <div id="status-pulse" class="absolute inset-0 w-2 h-2 bg-green-500 rounded-full animate-ping opacity-75"></div>
+                                    </div>
+                                    <span class="text-xs text-gray-400" id="status-text">Connecté</span>
+                                </div>
+                            </div>
+                            <button onclick="forceRefresh()" class="p-2.5 bg-gray-900/50 hover:bg-gray-800 rounded-xl transition-all" title="Rafraîchir">
+                                <i data-lucide="refresh-cw" class="w-4 h-4" id="refresh-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto" id="main-scroll">
+                <div class="max-w-7xl mx-auto px-4 py-6">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 id="category-title" class="text-2xl font-bold text-white flex items-center gap-3">
+                                <i data-lucide="activity" class="text-primary w-7 h-7"></i>
+                                <span class="gradient-text">À la une</span>
+                            </h2>
+                            <p class="text-gray-500 text-sm mt-1">Les dernières actualités tech françaises</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="px-3 py-1.5 bg-gray-900/50 rounded-lg">
+                                <span id="article-count" class="text-sm text-gray-400">0 articles</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="feed" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    <div id="loader" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    
+                    <div id="empty-state" class="hidden flex-col items-center justify-center py-20">
+                        <div class="w-24 h-24 bg-gray-900/50 rounded-full flex items-center justify-center mb-4">
+                            <i data-lucide="rss" class="w-12 h-12 text-gray-600"></i>
+                        </div>
+                        <p class="text-lg text-gray-400">Aucun article trouvé</p>
+                        <p class="text-sm text-gray-600 mt-2">Essayez de modifier votre recherche</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 
     <script>
-        // --------------------------------------------------------
-        // 1. CONFIGURATION DES DONNÉES AVEC PLUS DE FLUX RSS FIABLES
-        // --------------------------------------------------------
+        // =====================================================
+        // SOURCES FRANÇAISES UNIQUEMENT
+        // =====================================================
         const categories = {
-            it: { icon: 'monitor', label: 'Tech & IT', feeds: [
-                "https://www.clubic.com/feed",
-                "https://www.01net.com/actualites/feed/",
-                "https://www.lesnumeriques.com/rss/news.xml"
-            ]},
-            windows: { icon: 'layout-grid', label: 'Windows', feeds: [
-                "https://www.clubic.com/os/windows/feed",
-                "https://www.lesnumeriques.com/rss/news.xml"
-            ]},
-            android: { icon: 'smartphone', label: 'Android', feeds: [
-                "https://www.clubic.com/telecom/telephonie-android/feed",
-                "https://www.frandroid.com/feed"
-            ]},
-            iphone: { icon: 'apple', label: 'Apple / iPhone', feeds: [
-                "https://www.clubic.com/telecom/telephonie-ios/feed",
-                "https://www.frandroid.com/marques/apple/feed"
-            ]},
-            cyber: { icon: 'shield-alert', label: 'Cybersécurité', feeds: [
-                "https://www.clubic.com/securite-informatique/feed",
-                "https://www.lemondeinformatique.fr/flux-rss/thematique/securite/rss.xml"
-            ]}
+            it: {
+                icon: 'monitor',
+                label: 'Tech & IT',
+                gradient: 'from-blue-500 to-cyan-500',
+                feeds: [
+                    "https://www.it-connect.fr/feed/",
+                    "https://www.01net.com/actualites/feed/"
+                ]
+            },
+            windows: {
+                icon: 'layout-grid',
+                label: 'Windows',
+                gradient: 'from-blue-600 to-indigo-600',
+                feeds: [
+                    "https://www.it-connect.fr/category/windows-11/feed/",
+                    "https://www.it-connect.fr/category/windows-10/feed/",
+                    "https://www.01net.fr/windows/feed"
+                ]
+            },
+            android: {
+                icon: 'smartphone',
+                label: 'Android',
+                gradient: 'from-green-500 to-emerald-500',
+                feeds: [
+                    "https://www.frandroid.com/feed",
+                    "https://www.01net.fr/android/feed"
+                ]
+            },
+            iphone: {
+                icon: 'apple',
+                label: 'Apple',
+                gradient: 'from-gray-600 to-gray-800',
+                feeds: [
+                    "https://www.iphoneaddict.fr/feed",
+                    "https://www.01net.fr/apple/feed"
+                ]
+            },
+            cyber: {
+                icon: 'shield-alert',
+                label: 'Cybersécurité',
+                gradient: 'from-red-500 to-orange-500',
+                feeds: [
+                    "https://www.it-connect.fr/category/cybersecurite/feed/",
+                    "https://www.lemondeinformatique.fr/flux-rss/thematique/securite/rss.xml"
+                ]
+            }
         };
 
         let currentCategoryKey = 'it';
         let allCurrentArticles = [];
-        let sortDescending = true; // Tri par date décroissant par défaut
-        let currentSearchQuery = '';
+        let isLoading = false;
+        let countdownInterval = null;
+        let remainingSeconds = 300; // 5 minutes
+        let refreshTimer = null;
 
-        // --------------------------------------------------------
-        // 2. INITIALISATION DE L'INTERFACE
-        // --------------------------------------------------------
         function initApp() {
             lucide.createIcons();
             buildMenu();
             changeCategory('it');
+            startAutoRefresh();
             
-            // Mise à jour automatique toutes les 6 heures (au lieu de 24h)
-            setInterval(loadCurrentCategory, 21600000);
-            
-            // Détection du scroll pour afficher/masquer le bouton retour en haut
+            // Détection du scroll pour animations
             const mainScroll = document.getElementById('main-scroll');
             mainScroll.addEventListener('scroll', () => {
-                const scrollTopBtn = document.getElementById('scroll-top');
-                if (mainScroll.scrollTop > 300) {
-                    scrollTopBtn.classList.remove('hidden');
+                const scrollTop = mainScroll.scrollTop;
+                if (scrollTop > 200) {
+                    document.querySelector('header').classList.add('shadow-lg');
                 } else {
-                    scrollTopBtn.classList.add('hidden');
+                    document.querySelector('header').classList.remove('shadow-lg');
                 }
             });
         }
@@ -235,13 +341,19 @@
 
             for (const [key, data] of Object.entries(categories)) {
                 const btn = document.createElement('button');
-                btn.className = `w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors menu-item ${key === currentCategoryKey ? 'bg-gray-800 text-white border-l-4 border-primary' : 'text-gray-400 hover:bg-gray-800/50 hover:text-gray-200'}`;
+                const isActive = key === currentCategoryKey;
+                btn.className = `w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200 menu-item group ${
+                    isActive ? 'bg-gradient-to-r from-primary/20 to-secondary/20 text-white border-l-4 border-primary' : 'text-gray-400 hover:bg-gray-800/30 hover:text-gray-200'
+                }`;
                 btn.dataset.key = key;
                 btn.onclick = () => { changeCategory(key); toggleMenu(true); };
                 
                 btn.innerHTML = `
-                    <i data-lucide="${data.icon}" class="w-5 h-5"></i>
-                    <span class="font-medium">${data.label}</span>
+                    <div class="w-8 h-8 rounded-lg bg-gray-800/50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i data-lucide="${data.icon}" class="w-4 h-4"></i>
+                    </div>
+                    <span class="font-medium flex-1">${data.label}</span>
+                    ${isActive ? '<i data-lucide="chevron-right" class="w-4 h-4"></i>' : ''}
                 `;
                 menuContainer.appendChild(btn);
             }
@@ -261,220 +373,212 @@
             }
         }
 
-        function scrollToTop() {
-            document.getElementById('main-scroll').scrollTo({ top: 0, behavior: 'smooth' });
+        function startAutoRefresh() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            countdownInterval = setInterval(() => {
+                if (remainingSeconds <= 0) {
+                    remainingSeconds = 300;
+                    if (!isLoading) {
+                        loadCurrentCategory();
+                    }
+                } else {
+                    remainingSeconds--;
+                    updateCountdownDisplay();
+                }
+            }, 1000);
         }
 
-        function toggleSort() {
-            sortDescending = !sortDescending;
-            const sortBtn = document.getElementById('sort-btn');
-            const icon = sortBtn.querySelector('i');
-            if (icon) icon.setAttribute('data-lucide', sortDescending ? 'arrow-down' : 'arrow-up');
-            lucide.createIcons();
-            
-            sortArticles();
-            
-            if (currentSearchQuery) {
-                filterArticles();
-            } else {
-                renderArticles(allCurrentArticles);
+        function updateCountdownDisplay() {
+            const minutes = Math.floor(remainingSeconds / 60);
+            const seconds = remainingSeconds % 60;
+            document.getElementById('countdown').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            const progress = ((300 - remainingSeconds) / 300) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function forceRefresh() {
+            remainingSeconds = 0;
+            updateCountdownDisplay();
+            if (!isLoading) {
+                loadCurrentCategory();
             }
         }
 
-        function sortArticles() {
-            allCurrentArticles.sort((a, b) => {
-                const dateA = new Date(a.pubDate);
-                const dateB = new Date(b.pubDate);
-                return sortDescending ? dateB - dateA : dateA - dateB;
-            });
-        }
-
-        // --------------------------------------------------------
-        // 3. LOGIQUE MÉTIER (RÉCUPÉRATION DES DONNÉES)
-        // --------------------------------------------------------
-        function changeCategory(key) {
+        async function changeCategory(key) {
+            if (isLoading) return;
             currentCategoryKey = key;
             
             document.querySelectorAll('.menu-item').forEach(el => {
-                if (el.dataset.key === key) {
-                    el.className = 'w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors menu-item bg-gray-800 text-white border-l-4 border-primary';
+                const isActive = el.dataset.key === key;
+                if (isActive) {
+                    el.className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200 menu-item bg-gradient-to-r from-primary/20 to-secondary/20 text-white border-l-4 border-primary';
+                    const existingIcon = el.querySelector('i[data-lucide="chevron-right"]');
+                    if (!existingIcon) {
+                        const span = el.querySelector('span');
+                        const iconDiv = document.createElement('i');
+                        iconDiv.setAttribute('data-lucide', 'chevron-right');
+                        iconDiv.className = 'w-4 h-4';
+                        span.insertAdjacentElement('afterend', iconDiv);
+                    }
                 } else {
-                    el.className = 'w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors menu-item text-gray-400 hover:bg-gray-800/50 hover:text-gray-200 border-l-4 border-transparent';
+                    el.className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200 menu-item text-gray-400 hover:bg-gray-800/30 hover:text-gray-200';
+                    const chevron = el.querySelector('i[data-lucide="chevron-right"]');
+                    if (chevron) chevron.remove();
                 }
             });
-
+            
+            lucide.createIcons();
+            
             const catData = categories[key];
-            document.getElementById('category-title').innerHTML = `<i data-lucide="${catData.icon}" class="text-primary w-6 h-6"></i> ${catData.label}`;
+            const titleEl = document.getElementById('category-title');
+            titleEl.innerHTML = `<i data-lucide="${catData.icon}" class="text-primary w-7 h-7"></i><span class="gradient-text">${catData.label}</span>`;
             lucide.createIcons();
             
             document.getElementById('search').value = '';
-            currentSearchQuery = '';
             document.getElementById('main-scroll').scrollTo(0,0);
-
-            loadCurrentCategory();
+            await loadCurrentCategory();
         }
 
         async function loadCurrentCategory() {
+            if (isLoading) return;
+            isLoading = true;
+            
             const feedContainer = document.getElementById("feed");
             const emptyState = document.getElementById("empty-state");
             const refreshIcon = document.getElementById("refresh-icon");
-            const statusDot = document.querySelector("#status-indicator .relative");
+            const statusDot = document.getElementById("status-dot");
+            const statusPulse = document.getElementById("status-pulse");
+            const statusText = document.getElementById("status-text");
 
             feedContainer.innerHTML = "";
             emptyState.classList.add("hidden");
             refreshIcon.classList.add("animate-spin");
-            statusDot.className = "relative inline-flex rounded-full h-3 w-3 bg-yellow-500";
+            statusDot.className = "w-2 h-2 bg-yellow-500 rounded-full";
+            statusPulse.className = "absolute inset-0 w-2 h-2 bg-yellow-500 rounded-full animate-ping opacity-75";
+            statusText.textContent = "Chargement...";
             showLoader();
 
             const urls = categories[currentCategoryKey].feeds;
             allCurrentArticles = [];
             
             let successCount = 0;
-            let errorCount = 0;
 
-            try {
-                // Utilisation de plusieurs services proxy pour éviter les blocages
-                for (const url of urls) {
-                    try {
-                        // Essayer avec rss2json d'abord
-                        let data = await fetchWithProxy(url, 'rss2json');
-                        
-                        if (!data || data.status !== "ok") {
-                            // Fallback avec api.allorigins
-                            data = await fetchWithProxy(url, 'allorigins');
-                        }
-                        
-                        if (data && data.items && data.items.length > 0) {
-                            const feedLink = (data.feed && data.feed.link) ? data.feed.link : url;
-                            const sourceName = extractHostname(feedLink);
-                            
-                            const itemsWithSource = data.items.map(item => ({
-                                ...item,
-                                sourceName,
-                                // Nettoyage du contenu
-                                description: cleanDescription(item.description || item.content || ''),
-                                title: stripHtml(item.title || 'Sans titre')
-                            }));
-                            allCurrentArticles = allCurrentArticles.concat(itemsWithSource);
-                            successCount++;
-                        } else {
-                            errorCount++;
-                        }
-                    } catch (feedError) {
-                        console.warn(`Impossible de charger le flux: ${url}`, feedError);
-                        errorCount++;
+            for (const url of urls) {
+                try {
+                    const articles = await fetchRSSFeed(url);
+                    
+                    if (articles && articles.length > 0) {
+                        const sourceName = extractHostname(url);
+                        const articlesWithSource = articles.map(article => ({
+                            ...article,
+                            sourceName: sourceName,
+                            description: cleanText(article.description || article.content || ''),
+                            title: cleanText(article.title || 'Sans titre'),
+                            imageUrl: article.thumbnail || extractBestImage(article)
+                        }));
+                        allCurrentArticles = allCurrentArticles.concat(articlesWithSource);
+                        successCount++;
                     }
-                }
-
-                // Tri chronologique
-                sortArticles();
-
-                renderArticles(allCurrentArticles);
-                
-                // Mise à jour du statut
-                if (successCount > 0) {
-                    statusDot.className = "relative inline-flex rounded-full h-3 w-3 bg-green-500";
-                    document.getElementById('status-indicator').title = `Synchronisé à ${new Date().toLocaleTimeString()} (${successCount}/${successCount + errorCount} flux OK)`;
-                } else {
-                    statusDot.className = "relative inline-flex rounded-full h-3 w-3 bg-red-500";
-                    document.getElementById('status-indicator').title = "Erreur de connexion - Aucun flux chargé";
-                }
-                
-                // Mise à jour de l'heure de dernière mise à jour
-                const now = new Date();
-                document.getElementById('last-update').textContent = `Dernière mise à jour: ${now.toLocaleTimeString()}`;
-
-            } catch (err) {
-                console.error("Erreur générale :", err);
-                statusDot.className = "relative inline-flex rounded-full h-3 w-3 bg-red-500";
-                document.getElementById('status-indicator').title = "Erreur de connexion";
-            } finally {
-                hideLoader();
-                refreshIcon.classList.remove("animate-spin");
-                document.getElementById("article-count").textContent = `${allCurrentArticles.length} articles (${successCount} sources chargées)`;
-                
-                if(allCurrentArticles.length === 0) {
-                    emptyState.classList.remove("hidden");
-                    emptyState.innerHTML = `
-                        <i data-lucide="alert-triangle" class="w-16 h-16 mb-4 text-red-500"></i>
-                        <p class="text-lg">Aucun article n'a pu être chargé.</p>
-                        <p class="text-sm mt-2">Vérifiez votre connexion internet ou réessayez plus tard.</p>
-                        <button onclick="loadCurrentCategory()" class="mt-4 px-4 py-2 bg-primary/20 hover:bg-primary/30 rounded-lg transition-colors">
-                            <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>Réessayer
-                        </button>
-                    `;
-                    lucide.createIcons();
+                } catch (error) {
+                    console.warn(`Erreur flux ${url}:`, error.message);
                 }
             }
-        }
 
-        async function fetchWithProxy(url, proxyType) {
-            let proxyUrl;
-            if (proxyType === 'rss2json') {
-                proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
-            } else {
-                // Utiliser allorigins comme fallback
-                proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-            }
-            
-            const response = await fetch(proxyUrl);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            
-            let data;
-            if (proxyType === 'rss2json') {
-                data = await response.json();
-            } else {
-                const rawData = await response.json();
-                if (rawData && rawData.contents) {
-                    // Parser le XML manuellement
-                    const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(rawData.contents, "text/xml");
-                    data = parseRSSXML(xmlDoc);
-                } else {
-                    throw new Error('Invalid response');
-                }
-            }
-            
-            return data;
-        }
-
-        function parseRSSXML(xmlDoc) {
-            const items = xmlDoc.querySelectorAll('item');
-            const feedItems = [];
-            
-            items.forEach(item => {
-                const title = item.querySelector('title')?.textContent || '';
-                const link = item.querySelector('link')?.textContent || '';
-                const description = item.querySelector('description')?.textContent || '';
-                const pubDate = item.querySelector('pubDate')?.textContent || '';
-                const enclosure = item.querySelector('enclosure');
-                let thumbnail = null;
-                
-                if (enclosure && enclosure.getAttribute('url')) {
-                    thumbnail = enclosure.getAttribute('url');
-                }
-                
-                feedItems.push({
-                    title,
-                    link,
-                    description,
-                    pubDate,
-                    thumbnail,
-                    content: description
-                });
+            // Tri par date
+            allCurrentArticles.sort((a, b) => {
+                const dateA = a.pubDate ? new Date(a.pubDate) : new Date(0);
+                const dateB = b.pubDate ? new Date(b.pubDate) : new Date(0);
+                return dateB - dateA;
             });
+
+            renderArticles(allCurrentArticles);
             
-            return {
-                status: 'ok',
-                items: feedItems,
-                feed: { link: '' }
-            };
+            if (successCount > 0) {
+                statusDot.className = "w-2 h-2 bg-green-500 rounded-full";
+                statusPulse.className = "absolute inset-0 w-2 h-2 bg-green-500 rounded-full animate-ping opacity-75";
+                statusText.textContent = "Connecté";
+            } else {
+                statusDot.className = "w-2 h-2 bg-red-500 rounded-full";
+                statusPulse.className = "absolute inset-0 w-2 h-2 bg-red-500 rounded-full animate-ping opacity-75";
+                statusText.textContent = "Erreur";
+            }
+            
+            const now = new Date();
+            document.getElementById('last-update').innerHTML = `📅 Dernière synchro: ${now.toLocaleTimeString()}`;
+            document.getElementById("article-count").textContent = `${allCurrentArticles.length} articles`;
+            
+            if(allCurrentArticles.length === 0) {
+                emptyState.classList.remove("hidden");
+            }
+            
+            hideLoader();
+            refreshIcon.classList.remove("animate-spin");
+            isLoading = false;
         }
 
-        // --------------------------------------------------------
-        // 4. RENDU VISUEL ET UTILITAIRES
-        // --------------------------------------------------------
-        
+        async function fetchRSSFeed(url) {
+            const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
+            
+            try {
+                const response = await fetch(proxyUrl);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                
+                if (data && data.status === "ok" && data.items && data.items.length > 0) {
+                    return data.items.map(item => ({
+                        title: item.title,
+                        link: item.link,
+                        description: item.description,
+                        pubDate: item.pubDate,
+                        thumbnail: item.thumbnail || extractImageFromContent(item.description || item.content),
+                        content: item.content || item.description
+                    }));
+                }
+                return [];
+            } catch (error) {
+                console.error(`Erreur fetch pour ${url}:`, error);
+                return [];
+            }
+        }
+
+        function extractBestImage(article) {
+            // Essayer différentes sources d'images
+            if (article.thumbnail && article.thumbnail.startsWith('http')) return article.thumbnail;
+            if (article.enclosure && article.enclosure.link) return article.enclosure.link;
+            
+            // Chercher dans le contenu
+            const content = article.content || article.description || '';
+            const imgRegex = /<img[^>]+src=["']([^"']+)["']/gi;
+            let match;
+            while ((match = imgRegex.exec(content)) !== null) {
+                if (match[1].startsWith('http') && !match[1].includes('avatar') && !match[1].includes('logo')) {
+                    return match[1];
+                }
+            }
+            
+            // Images par défaut selon la catégorie
+            const defaultImages = {
+                it: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&h=400&fit=crop',
+                windows: 'https://images.unsplash.com/photo-1574169208507-84376144848b?w=600&h=400&fit=crop',
+                android: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop',
+                iphone: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=600&h=400&fit=crop',
+                cyber: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&h=400&fit=crop'
+            };
+            
+            return defaultImages[currentCategoryKey] || 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&h=400&fit=crop';
+        }
+
+        function extractImageFromContent(htmlContent) {
+            if (!htmlContent) return null;
+            const imgMatch = htmlContent.match(/<img[^>]+src="([^">]+)"/);
+            if (imgMatch && imgMatch[1] && imgMatch[1].startsWith('http')) {
+                return imgMatch[1];
+            }
+            return null;
+        }
+
         function renderArticles(articles) {
             const feedContainer = document.getElementById("feed");
             const emptyState = document.getElementById("empty-state");
@@ -487,47 +591,57 @@
 
             emptyState.classList.add("hidden");
 
-            articles.forEach(item => {
-                const cleanDescription = item.description || "Aucune description disponible";
-                const safeTitle = item.title || "Sans titre";
+            articles.forEach((article, index) => {
+                const description = article.description || "Cliquez pour lire l'article complet";
+                const title = article.title || "Article";
                 
                 let formattedDate = "Date inconnue";
-                const dateObj = new Date(item.pubDate);
-                if (!isNaN(dateObj.getTime())) {
-                    formattedDate = dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+                if (article.pubDate) {
+                    const dateObj = new Date(article.pubDate);
+                    if (!isNaN(dateObj.getTime())) {
+                        formattedDate = dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+                    }
                 }
 
-                // Extraction d'image améliorée
-                let imageUrl = extractImageFromItem(item);
-                
-                if (!imageUrl || imageUrl === 'null' || imageUrl === 'undefined') {
-                    imageUrl = getCategoryImage(currentCategoryKey);
-                }
+                const imageUrl = article.imageUrl || extractBestImage(article);
+                const uniqueId = `img-${Date.now()}-${index}`;
 
                 const cardHTML = `
-                    <a href="${item.link || '#'}" target="_blank" rel="noopener noreferrer" class="group flex flex-col bg-card border border-gray-800 rounded-xl overflow-hidden hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1 h-full">
-                        <div class="h-48 w-full bg-gradient-to-br from-gray-800 to-gray-900 relative overflow-hidden flex-shrink-0">
-                            <img src="${imageUrl}" alt="${escapeHtml(safeTitle)}" referrerpolicy="no-referrer" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" 
-                                 onerror="this.onerror=null; this.src='https://placehold.co/600x400/1e293b/38bdf8?text=${encodeURIComponent(safeTitle.substring(0, 30))}'">
+                    <a href="${article.link || '#'}" target="_blank" rel="noopener noreferrer" class="group block bg-card rounded-xl overflow-hidden border border-gray-800/50 card-hover-effect">
+                        <div class="relative h-52 overflow-hidden image-loader">
+                            <img id="${uniqueId}" 
+                                 src="${imageUrl}" 
+                                 alt="${escapeHtml(title)}" 
+                                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                 loading="lazy"
+                                 onload="this.classList.add('loaded'); this.parentElement.classList.remove('image-loader');"
+                                 onerror="this.onerror=null; this.src='https://placehold.co/600x400/111316/3b82f6?text=${encodeURIComponent(title.substring(0, 30))}'; this.classList.add('loaded');">
                             <div class="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent"></div>
-                            <div class="absolute top-2 right-2">
-                                <span class="px-2 py-1 bg-black/50 backdrop-blur-sm rounded text-xs text-primary">
-                                    ${escapeHtml(item.sourceName || 'Source')}
+                            <div class="absolute top-3 left-3">
+                                <span class="px-2.5 py-1 bg-black/70 backdrop-blur-sm rounded-lg text-xs font-medium text-primary">
+                                    ${escapeHtml(article.sourceName || 'Source')}
                                 </span>
                             </div>
                         </div>
-                        <div class="p-5 flex-1 flex flex-col">
-                            <div class="flex items-center justify-between text-xs text-primary font-medium mb-3">
-                                <span class="flex items-center gap-1"><i data-lucide="globe" class="w-3 h-3"></i> ${escapeHtml(item.sourceName || 'Source')}</span>
-                                <span class="text-gray-500 text-xs">${formattedDate}</span>
+                        <div class="p-5">
+                            <div class="flex items-center gap-2 text-xs text-gray-500 mb-3">
+                                <i data-lucide="calendar" class="w-3 h-3"></i>
+                                <span>${formattedDate}</span>
                             </div>
-                            <h3 class="text-lg font-semibold text-white leading-tight mb-3 group-hover:text-primary transition-colors line-clamp-2">${escapeHtml(safeTitle)}</h3>
-                            <p class="text-sm text-gray-400 line-clamp-3">${escapeHtml(cleanDescription)}</p>
-                            <div class="mt-4 pt-3 border-t border-gray-800 flex items-center justify-between text-xs">
-                                <span class="text-primary flex items-center gap-1">
-                                    <i data-lucide="external-link" class="w-3 h-3"></i> Lire l'article
+                            <h3 class="text-lg font-semibold text-white leading-tight mb-3 group-hover:text-primary transition-colors line-clamp-2">
+                                ${escapeHtml(title)}
+                            </h3>
+                            <p class="text-sm text-gray-400 line-clamp-3 mb-4">
+                                ${escapeHtml(description.length > 120 ? description.substring(0, 120) + '...' : description)}
+                            </p>
+                            <div class="flex items-center justify-between pt-3 border-t border-gray-800/50">
+                                <span class="text-xs text-gray-500 flex items-center gap-1">
+                                    <i data-lucide="clock" class="w-3 h-3"></i>
+                                    ${Math.ceil(description.length / 500) || 1} min de lecture
                                 </span>
-                                <span class="text-gray-600">📖 ${Math.floor(cleanDescription.length / 100) + 1} min de lecture</span>
+                                <span class="text-primary text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
+                                    Lire <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </span>
                             </div>
                         </div>
                     </a>
@@ -537,79 +651,48 @@
             lucide.createIcons();
         }
 
-        function extractImageFromItem(item) {
-            // Vérifier différentes sources d'image
-            if (item.thumbnail && item.thumbnail.startsWith('http')) return item.thumbnail;
-            if (item.enclosure && item.enclosure.link && item.enclosure.link.startsWith('http')) return item.enclosure.link;
-            
-            // Extraire des balises img dans le contenu
-            const content = item.content || item.description || '';
-            const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
-            if (imgMatch && imgMatch[1].startsWith('http')) return imgMatch[1];
-            
-            // Vérifier dans les media:content
-            if (item['media:content'] && item['media:content'].url) return item['media:content'].url;
-            
-            return null;
-        }
-
-        function getCategoryImage(categoryKey) {
-            const images = {
-                it: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=400&h=200',
-                windows: 'https://images.unsplash.com/photo-1574169208507-84376144848b?auto=format&fit=crop&q=80&w=400&h=200',
-                android: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&q=80&w=400&h=200',
-                iphone: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&q=80&w=400&h=200',
-                cyber: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=400&h=200'
-            };
-            return images[categoryKey] || 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=400&h=200';
-        }
-
         function filterArticles() {
-            const query = document.getElementById("search").value.toLowerCase();
-            currentSearchQuery = query;
+            const query = document.getElementById("search").value.toLowerCase().trim();
             
-            if (!query.trim()) {
+            if (!query) {
                 renderArticles(allCurrentArticles);
                 document.getElementById("article-count").textContent = `${allCurrentArticles.length} articles`;
                 return;
             }
             
-            const filtered = allCurrentArticles.filter(item => 
-                (item.title && item.title.toLowerCase().includes(query)) || 
-                (item.description && item.description.toLowerCase().includes(query)) ||
-                (item.sourceName && item.sourceName.toLowerCase().includes(query))
+            const filtered = allCurrentArticles.filter(article => 
+                (article.title && article.title.toLowerCase().includes(query)) || 
+                (article.description && article.description.toLowerCase().includes(query))
             );
             renderArticles(filtered);
-            document.getElementById("article-count").textContent = `${filtered.length} résultats pour "${query}"`;
+            document.getElementById("article-count").textContent = `${filtered.length} résultats`;
         }
 
-        function cleanDescription(html) {
-            if (!html) return "";
-            let text = stripHtml(html);
-            text = text.replace(/\s+/g, ' ').trim();
-            if (text.length > 200) {
-                text = text.substring(0, 200) + '...';
-            }
-            return text;
-        }
-
-        // --- Fonctions Utilitaires ---
         function extractHostname(url) {
-            try { 
+            try {
                 const hostname = new URL(url).hostname.replace('www.', '');
+                if (hostname.includes('it-connect')) return 'IT-Connect';
+                if (hostname.includes('01net')) return '01Net';
+                if (hostname.includes('frandroid')) return 'Frandroid';
+                if (hostname.includes('iphoneaddict')) return 'iPhoneAddict';
+                if (hostname.includes('lemondeinformatique')) return 'Le Monde Informatique';
                 return hostname.split('.')[0].charAt(0).toUpperCase() + hostname.split('.')[0].slice(1);
-            } catch { 
+            } catch {
                 return "Source IT";
             }
         }
 
-        function stripHtml(html) {
-            if(!html) return "";
-            let tmp = document.createElement("DIV");
-            tmp.innerHTML = html;
-            return tmp.textContent || tmp.innerText || "";
+        function cleanText(html) {
+            if (!html) return "";
+            let text = html.replace(/<[^>]*>/g, '');
+            text = text.replace(/&nbsp;/g, ' ');
+            text = text.replace(/&amp;/g, '&');
+            text = text.replace(/&lt;/g, '<');
+            text = text.replace(/&gt;/g, '>');
+            text = text.replace(/&quot;/g, '"');
+            return text.trim();
         }
-        
+
         function escapeHtml(text) {
             if (!text) return "";
             const div = document.createElement('div');
@@ -621,10 +704,10 @@
             const loader = document.getElementById("loader");
             loader.innerHTML = '';
             loader.classList.remove("hidden");
-            for(let i=0; i<6; i++) {
+            for(let i = 0; i < 6; i++) {
                 loader.innerHTML += `
-                    <div class="bg-card border border-gray-800 rounded-xl overflow-hidden">
-                        <div class="h-48 shimmer"></div>
+                    <div class="bg-card rounded-xl overflow-hidden border border-gray-800/50">
+                        <div class="h-52 shimmer"></div>
                         <div class="p-5 space-y-3">
                             <div class="h-3 bg-gray-800 rounded w-1/3 shimmer"></div>
                             <div class="h-5 bg-gray-700 rounded w-full shimmer"></div>
@@ -641,6 +724,7 @@
             document.getElementById("loader").classList.add("hidden");
         }
 
+        // Ajout de la gestion des images chargées
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
