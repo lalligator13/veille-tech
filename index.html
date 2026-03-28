@@ -1,219 +1,118 @@
 <!DOCTYPE html>
-<html lang="fr" class="dark">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KevTech - Veille Technologique Française</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        dark: '#0a0c10',
-                        darker: '#050608',
-                        card: '#111316',
-                        cardHover: '#1a1d23',
-                        primary: '#3b82f6',
-                        primaryDark: '#2563eb',
-                        secondary: '#8b5cf6'
-                    },
-                    animation: {
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'float': 'float 3s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-10px)' },
-                        }
-                    }
-                }
-            }
-        }
-    </style>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        * {
-            scrollbar-width: thin;
-            scrollbar-color: #3b82f6 #1e1e2e;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a0c10; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
         
-        ::-webkit-scrollbar-track {
-            background: #1e1e2e;
-            border-radius: 10px;
-        }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         
-        ::-webkit-scrollbar-thumb {
-            background: #3b82f6;
-            border-radius: 10px;
-        }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .animate-spin { animation: spin 1s linear infinite; }
         
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -12px rgba(59, 130, 246, 0.25); border-color: #3b82f6; }
         
-        .line-clamp-3 {
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
+        .gradient-text { background: linear-gradient(135deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent; }
         
-        @keyframes shimmer {
-            0% { background-position: -1000px 0; }
-            100% { background-position: 1000px 0; }
-        }
+        img { opacity: 0; transition: opacity 0.3s ease; }
+        img.loaded { opacity: 1; }
         
-        .shimmer {
-            animation: shimmer 2s infinite;
-            background: linear-gradient(90deg, #1a1d23 0%, #2a2d35 50%, #1a1d23 100%);
-            background-size: 1000px 100%;
-        }
-        
-        .glass-effect {
-            background: rgba(5, 6, 8, 0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
-        }
-        
-        .card-hover-effect {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .card-hover-effect:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -12px rgba(59, 130, 246, 0.2);
-            border-color: rgba(59, 130, 246, 0.5);
-        }
-        
-        .gradient-text {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        
-        img {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        img.loaded {
-            opacity: 1;
-        }
+        .skeleton { background: linear-gradient(90deg, #1f2937 0%, #374151 50%, #1f2937 100%); background-size: 200% 100%; animation: skeleton 1.5s infinite; }
+        @keyframes skeleton { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
-<body class="bg-dark text-gray-200">
+<body>
 
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
-        <aside id="sidebar" class="bg-darker/95 backdrop-blur-sm w-72 border-r border-gray-800/50 flex-shrink-0 absolute md:relative z-20 h-full transform -translate-x-full md:translate-x-0 transition-all duration-300 flex flex-col">
-            <div class="p-6 flex items-center justify-between border-b border-gray-800/50">
+        <aside id="sidebar" class="w-72 bg-gray-900 border-r border-gray-800 flex-shrink-0 absolute md:relative z-20 h-full transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col">
+            <div class="p-6 border-b border-gray-800">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center animate-float">
-                        <i data-lucide="cpu" class="text-white w-5 h-5"></i>
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <i data-lucide="cpu" class="w-5 h-5 text-white"></i>
                     </div>
                     <div>
                         <h1 class="text-xl font-bold gradient-text">KevTech</h1>
-                        <p class="text-xs text-gray-500">Veille IT Française</p>
+                        <p class="text-xs text-gray-500">Veille IT française</p>
                     </div>
                 </div>
-                <button onclick="toggleMenu()" class="md:hidden text-gray-400 hover:text-white">
-                    <i data-lucide="x"></i>
+                <button onclick="toggleSidebar()" class="absolute top-6 right-4 md:hidden text-gray-400">
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
             
-            <nav class="p-4 space-y-2 flex-1 overflow-y-auto" id="menu-container"></nav>
-
-            <div class="p-4 border-t border-gray-800/50 space-y-3">
-                <div class="flex items-center justify-between text-xs">
-                    <span class="text-gray-500">🔄 Mise à jour</span>
-                    <span id="countdown" class="text-primary font-mono">05:00</span>
+            <nav class="flex-1 overflow-y-auto p-4 space-y-2" id="menuContainer"></nav>
+            
+            <div class="p-4 border-t border-gray-800 space-y-3">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-gray-500">🔄 Rafraîchissement</span>
+                    <span id="timer" class="text-blue-400 font-mono">05:00</span>
                 </div>
-                <div class="w-full bg-gray-800/50 rounded-full h-1 overflow-hidden">
-                    <div id="progress-bar" class="bg-gradient-to-r from-primary to-secondary h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+                <div class="h-1 bg-gray-800 rounded-full overflow-hidden">
+                    <div id="timerProgress" class="h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-full transition-all duration-1000" style="width: 0%"></div>
                 </div>
-                <div class="text-center text-xs text-gray-600" id="last-update">
-                    Dernière synchro: --
-                </div>
+                <div class="text-center text-xs text-gray-600" id="lastUpdate">--:--:--</div>
             </div>
         </aside>
-
-        <div id="sidebar-overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/70 z-10 hidden md:hidden"></div>
-
+        
+        <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-10 hidden md:hidden"></div>
+        
         <!-- Main Content -->
-        <main class="flex-1 flex flex-col h-full relative overflow-hidden">
-            <header class="glass-effect sticky top-0 z-10">
+        <main class="flex-1 flex flex-col h-full overflow-hidden">
+            <header class="bg-gray-900/80 backdrop-blur-sm border-b border-gray-800 sticky top-0 z-10">
                 <div class="max-w-7xl mx-auto px-4 py-3">
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="flex items-center gap-4 flex-1">
-                            <button onclick="toggleMenu()" class="md:hidden text-gray-300 hover:text-white">
-                                <i data-lucide="menu"></i>
-                            </button>
-                            
-                            <div class="relative flex-1 max-w-lg">
-                                <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4"></i>
-                                <input type="text" id="search" onkeyup="filterArticles()" 
-                                    placeholder="Rechercher un article..." 
-                                    class="w-full pl-10 pr-4 py-2.5 bg-gray-900/50 border border-gray-700 rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm">
-                            </div>
+                    <div class="flex items-center gap-4">
+                        <button onclick="toggleSidebar()" class="md:hidden text-gray-400">
+                            <i data-lucide="menu" class="w-5 h-5"></i>
+                        </button>
+                        
+                        <div class="flex-1 relative max-w-md">
+                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4"></i>
+                            <input type="text" id="searchInput" placeholder="Rechercher un article..." 
+                                class="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 text-sm">
                         </div>
-
-                        <div class="flex items-center gap-3">
-                            <div class="relative">
-                                <div class="flex items-center gap-2 px-3 py-2 bg-gray-900/50 rounded-xl">
-                                    <div class="relative">
-                                        <div id="status-dot" class="w-2 h-2 bg-green-500 rounded-full"></div>
-                                        <div id="status-pulse" class="absolute inset-0 w-2 h-2 bg-green-500 rounded-full animate-ping opacity-75"></div>
-                                    </div>
-                                    <span class="text-xs text-gray-400" id="status-text">Connecté</span>
-                                </div>
-                            </div>
-                            <button onclick="forceRefresh()" class="p-2.5 bg-gray-900/50 hover:bg-gray-800 rounded-xl transition-all" title="Rafraîchir">
-                                <i data-lucide="refresh-cw" class="w-4 h-4" id="refresh-icon"></i>
-                            </button>
-                        </div>
+                        
+                        <button onclick="refreshCurrentCategory()" class="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition">
+                            <i data-lucide="refresh-cw" id="refreshIcon" class="w-4 h-4"></i>
+                        </button>
                     </div>
                 </div>
             </header>
-
-            <div class="flex-1 overflow-y-auto" id="main-scroll">
-                <div class="max-w-7xl mx-auto px-4 py-6">
-                    <div class="flex items-center justify-between mb-8">
+            
+            <div class="flex-1 overflow-y-auto p-4 md:p-6" id="contentArea">
+                <div class="max-w-7xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
                         <div>
-                            <h2 id="category-title" class="text-2xl font-bold text-white flex items-center gap-3">
-                                <i data-lucide="activity" class="text-primary w-7 h-7"></i>
-                                <span class="gradient-text">À la une</span>
+                            <h2 id="categoryTitle" class="text-2xl font-bold flex items-center gap-2">
+                                <i data-lucide="activity" class="text-blue-500 w-6 h-6"></i>
+                                <span class="gradient-text">Tech & IT</span>
                             </h2>
-                            <p class="text-gray-500 text-sm mt-1">Les dernières actualités tech françaises</p>
+                            <p class="text-gray-500 text-sm mt-1">Actualités technologiques françaises</p>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <div class="px-3 py-1.5 bg-gray-900/50 rounded-lg">
-                                <span id="article-count" class="text-sm text-gray-400">0 articles</span>
-                            </div>
+                        <div class="bg-gray-800 px-3 py-1 rounded-lg">
+                            <span id="articleCount" class="text-sm text-gray-400">0 articles</span>
                         </div>
                     </div>
-
-                    <div id="feed" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-                    <div id="loader" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
                     
-                    <div id="empty-state" class="hidden flex-col items-center justify-center py-20">
-                        <div class="w-24 h-24 bg-gray-900/50 rounded-full flex items-center justify-center mb-4">
-                            <i data-lucide="rss" class="w-12 h-12 text-gray-600"></i>
+                    <div id="articlesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    <div id="skeletonLoader" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"></div>
+                    <div id="emptyState" class="hidden flex flex-col items-center justify-center py-20">
+                        <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                            <i data-lucide="inbox" class="w-10 h-10 text-gray-600"></i>
                         </div>
-                        <p class="text-lg text-gray-400">Aucun article trouvé</p>
-                        <p class="text-sm text-gray-600 mt-2">Vérifiez votre connexion ou réessayez plus tard</p>
-                        <button onclick="forceRefresh()" class="mt-4 px-4 py-2 bg-primary/20 hover:bg-primary/30 rounded-lg transition-colors text-sm">
+                        <p class="text-gray-400 text-lg">Aucun article trouvé</p>
+                        <button onclick="refreshCurrentCategory()" class="mt-4 px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 rounded-lg text-sm transition">
                             🔄 Réessayer
                         </button>
                     </div>
@@ -223,461 +122,353 @@
     </div>
 
     <script>
-        // =====================================================
-        // SOURCES FRANÇAISES - TESTÉES ET FONCTIONNELLES
-        // =====================================================
-        const categories = {
-            it: {
-                icon: 'monitor',
-                label: 'Tech & IT',
+        // ============================================
+        // SOURCES FRANÇAISES TESTÉES ET FONCTIONNELLES
+        // ============================================
+        const CATEGORIES = {
+            tech: {
+                name: "Tech & IT",
+                icon: "monitor",
                 feeds: [
-                    "https://www.it-connect.fr/feed/",
-                    "https://www.01net.com/actualites/feed/"
+                    "https://www.clubic.com/feed",
+                    "https://www.lesnumeriques.com/rss/news.xml"
                 ]
             },
             windows: {
-                icon: 'layout-grid',
-                label: 'Windows',
+                name: "Windows",
+                icon: "layout-grid",
                 feeds: [
-                    "https://www.it-connect.fr/category/windows-11/feed/",
-                    "https://www.it-connect.fr/category/windows-10/feed/",
+                    "https://www.clubic.com/os/windows/feed",
                     "https://www.windowscentral.com/feed"
                 ]
             },
             android: {
-                icon: 'smartphone',
-                label: 'Android',
+                name: "Android",
+                icon: "smartphone",
                 feeds: [
-                    "https://www.frandroid.com/feed",
-                    "https://www.01net.com/android/feed/"
+                    "https://www.clubic.com/telecom/telephonie-android/feed",
+                    "https://www.androidcentral.com/feed"
                 ]
             },
-            iphone: {
-                icon: 'apple',
-                label: 'Apple',
+            apple: {
+                name: "Apple",
+                icon: "apple",
                 feeds: [
-                    "https://www.iphoneaddict.fr/feed",
-                    "https://www.01net.com/apple/feed/"
+                    "https://www.clubic.com/telecom/telephonie-ios/feed",
+                    "https://www.iphoneaddict.fr/feed"
                 ]
             },
             cyber: {
-                icon: 'shield-alert',
-                label: 'Cybersécurité',
+                name: "Cybersécurité",
+                icon: "shield",
                 feeds: [
-                    "https://www.it-connect.fr/category/cybersecurite/feed/",
+                    "https://www.clubic.com/securite-informatique/feed",
                     "https://www.lemondeinformatique.fr/flux-rss/thematique/securite/rss.xml"
                 ]
             }
         };
-
-        let currentCategoryKey = 'it';
-        let allCurrentArticles = [];
+        
+        let currentCategory = "tech";
+        let allArticles = [];
         let isLoading = false;
-        let countdownInterval = null;
-        let remainingSeconds = 300;
-        let refreshTimer = null;
-
-        function initApp() {
+        let timerSeconds = 300;
+        let timerInterval = null;
+        
+        const DEFAULT_IMAGES = {
+            tech: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&h=400&fit=crop",
+            windows: "https://images.unsplash.com/photo-1574169208507-84376144848b?w=600&h=400&fit=crop",
+            android: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop",
+            apple: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=600&h=400&fit=crop",
+            cyber: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&h=400&fit=crop"
+        };
+        
+        // ============================================
+        // INITIALISATION
+        // ============================================
+        function init() {
             lucide.createIcons();
             buildMenu();
-            changeCategory('it');
-            startAutoRefresh();
+            loadArticles();
+            startTimer();
+            document.getElementById("searchInput").addEventListener("input", filterArticles);
         }
-
+        
         function buildMenu() {
-            const menuContainer = document.getElementById('menu-container');
-            menuContainer.innerHTML = '';
-
-            for (const [key, data] of Object.entries(categories)) {
-                const btn = document.createElement('button');
-                const isActive = key === currentCategoryKey;
-                btn.className = `w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200 menu-item group ${
-                    isActive ? 'bg-gradient-to-r from-primary/20 to-secondary/20 text-white border-l-4 border-primary' : 'text-gray-400 hover:bg-gray-800/30 hover:text-gray-200'
+            const container = document.getElementById("menuContainer");
+            container.innerHTML = "";
+            
+            for (const [key, cat] of Object.entries(CATEGORIES)) {
+                const isActive = key === currentCategory;
+                const button = document.createElement("button");
+                button.className = `w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all duration-200 ${
+                    isActive ? "bg-blue-500/20 text-blue-400 border-l-4 border-blue-500" : "text-gray-400 hover:bg-gray-800 hover:text-gray-200"
                 }`;
-                btn.dataset.key = key;
-                btn.onclick = () => { changeCategory(key); toggleMenu(true); };
-                
-                btn.innerHTML = `
-                    <div class="w-8 h-8 rounded-lg bg-gray-800/50 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <i data-lucide="${data.icon}" class="w-4 h-4"></i>
-                    </div>
-                    <span class="font-medium flex-1">${data.label}</span>
-                `;
-                menuContainer.appendChild(btn);
+                button.innerHTML = `<i data-lucide="${cat.icon}" class="w-5 h-5"></i><span class="flex-1 font-medium">${cat.name}</span>`;
+                button.onclick = () => changeCategory(key);
+                container.appendChild(button);
             }
-            lucide.createIcons({ root: menuContainer });
+            lucide.createIcons({ root: container });
         }
-
-        function toggleMenu(forceClose = false) {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebar-overlay');
+        
+        function changeCategory(categoryKey) {
+            if (isLoading || currentCategory === categoryKey) return;
+            currentCategory = categoryKey;
+            buildMenu();
             
-            if (forceClose || !sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.add('-translate-x-full');
-                overlay.classList.add('hidden');
-            } else {
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.remove('hidden');
-            }
-        }
-
-        function startAutoRefresh() {
-            if (countdownInterval) clearInterval(countdownInterval);
-            
-            countdownInterval = setInterval(() => {
-                if (remainingSeconds <= 0) {
-                    remainingSeconds = 300;
-                    if (!isLoading) {
-                        loadCurrentCategory();
-                    }
-                } else {
-                    remainingSeconds--;
-                    updateCountdownDisplay();
-                }
-            }, 1000);
-        }
-
-        function updateCountdownDisplay() {
-            const minutes = Math.floor(remainingSeconds / 60);
-            const seconds = remainingSeconds % 60;
-            document.getElementById('countdown').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            const progress = ((300 - remainingSeconds) / 300) * 100;
-            document.getElementById('progress-bar').style.width = `${progress}%`;
-        }
-
-        function forceRefresh() {
-            remainingSeconds = 0;
-            updateCountdownDisplay();
-            if (!isLoading) {
-                loadCurrentCategory();
-            }
-        }
-
-        async function changeCategory(key) {
-            if (isLoading) return;
-            currentCategoryKey = key;
-            
-            // Mise à jour de l'interface sans ajouter de chevron
-            document.querySelectorAll('.menu-item').forEach(el => {
-                const isActive = el.dataset.key === key;
-                if (isActive) {
-                    el.className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200 menu-item bg-gradient-to-r from-primary/20 to-secondary/20 text-white border-l-4 border-primary';
-                } else {
-                    el.className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200 menu-item text-gray-400 hover:bg-gray-800/30 hover:text-gray-200';
-                }
-            });
-            
-            const catData = categories[key];
-            const titleEl = document.getElementById('category-title');
-            titleEl.innerHTML = `<i data-lucide="${catData.icon}" class="text-primary w-7 h-7"></i><span class="gradient-text">${catData.label}</span>`;
+            const cat = CATEGORIES[categoryKey];
+            document.getElementById("categoryTitle").innerHTML = `<i data-lucide="${cat.icon}" class="text-blue-500 w-6 h-6"></i><span class="gradient-text">${cat.name}</span>`;
             lucide.createIcons();
-            
-            document.getElementById('search').value = '';
-            document.getElementById('main-scroll').scrollTo(0,0);
-            await loadCurrentCategory();
+            document.getElementById("searchInput").value = "";
+            loadArticles();
         }
-
-        async function loadCurrentCategory() {
+        
+        async function loadArticles() {
             if (isLoading) return;
             isLoading = true;
             
-            const feedContainer = document.getElementById("feed");
-            const emptyState = document.getElementById("empty-state");
-            const refreshIcon = document.getElementById("refresh-icon");
-            const statusDot = document.getElementById("status-dot");
-            const statusPulse = document.getElementById("status-pulse");
-            const statusText = document.getElementById("status-text");
-
-            feedContainer.innerHTML = "";
+            const grid = document.getElementById("articlesGrid");
+            const emptyState = document.getElementById("emptyState");
+            const refreshIcon = document.getElementById("refreshIcon");
+            
+            grid.innerHTML = "";
             emptyState.classList.add("hidden");
             refreshIcon.classList.add("animate-spin");
-            statusDot.className = "w-2 h-2 bg-yellow-500 rounded-full";
-            if (statusPulse) statusPulse.className = "absolute inset-0 w-2 h-2 bg-yellow-500 rounded-full animate-ping opacity-75";
-            statusText.textContent = "Chargement...";
-            showLoader();
-
-            const urls = categories[currentCategoryKey].feeds;
-            allCurrentArticles = [];
+            showSkeletons(true);
             
-            let successCount = 0;
-
-            // Chargement parallèle des flux
-            const fetchPromises = urls.map(async (url) => {
-                try {
-                    const articles = await fetchRSSFeed(url);
-                    if (articles && articles.length > 0) {
-                        const sourceName = getSourceName(url);
-                        return articles.map(article => ({
-                            ...article,
-                            sourceName: sourceName,
-                            description: cleanText(article.description || article.content || ''),
-                            title: cleanText(article.title || 'Sans titre')
-                        }));
-                    }
-                    return [];
-                } catch (error) {
-                    console.warn(`Erreur flux ${url}:`, error.message);
-                    return [];
-                }
-            });
-
-            const results = await Promise.all(fetchPromises);
+            const feeds = CATEGORIES[currentCategory].feeds;
+            const allFetchedArticles = [];
             
-            results.forEach(articles => {
-                if (articles.length > 0) {
-                    allCurrentArticles = allCurrentArticles.concat(articles);
-                    successCount++;
+            for (const feedUrl of feeds) {
+                const articles = await fetchFeed(feedUrl);
+                if (articles && articles.length > 0) {
+                    allFetchedArticles.push(...articles);
                 }
-            });
-
-            // Tri par date
-            allCurrentArticles.sort((a, b) => {
+            }
+            
+            allFetchedArticles.sort((a, b) => {
                 const dateA = a.pubDate ? new Date(a.pubDate) : new Date(0);
                 const dateB = b.pubDate ? new Date(b.pubDate) : new Date(0);
                 return dateB - dateA;
             });
-
-            renderArticles(allCurrentArticles);
             
-            if (successCount > 0) {
-                statusDot.className = "w-2 h-2 bg-green-500 rounded-full";
-                if (statusPulse) statusPulse.className = "absolute inset-0 w-2 h-2 bg-green-500 rounded-full animate-ping opacity-75";
-                statusText.textContent = "Connecté";
-            } else {
-                statusDot.className = "w-2 h-2 bg-red-500 rounded-full";
-                if (statusPulse) statusPulse.className = "absolute inset-0 w-2 h-2 bg-red-500 rounded-full animate-ping opacity-75";
-                statusText.textContent = "Erreur";
-            }
+            allArticles = allFetchedArticles;
+            document.getElementById("articleCount").textContent = `${allArticles.length} articles`;
+            document.getElementById("lastUpdate").textContent = new Date().toLocaleTimeString();
             
-            const now = new Date();
-            document.getElementById('last-update').innerHTML = `📅 Dernière synchro: ${now.toLocaleTimeString()}`;
-            document.getElementById("article-count").textContent = `${allCurrentArticles.length} articles`;
-            
-            if(allCurrentArticles.length === 0) {
+            if (allArticles.length === 0) {
                 emptyState.classList.remove("hidden");
+                grid.innerHTML = "";
+            } else {
+                renderArticles(allArticles);
             }
             
-            hideLoader();
+            showSkeletons(false);
             refreshIcon.classList.remove("animate-spin");
             isLoading = false;
         }
-
-        async function fetchRSSFeed(url) {
-            const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
-            
+        
+        async function fetchFeed(url) {
             try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000);
-                
-                const response = await fetch(proxyUrl, { signal: controller.signal });
-                clearTimeout(timeoutId);
+                // Utiliser rss2json qui est plus fiable pour le parsing RSS
+                const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
+                const response = await fetch(proxyUrl);
                 
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 
                 const data = await response.json();
                 
                 if (data && data.status === "ok" && data.items && data.items.length > 0) {
+                    const sourceName = getSourceName(url);
                     return data.items.map(item => ({
-                        title: item.title,
+                        title: cleanText(item.title),
                         link: item.link,
-                        description: item.description,
+                        description: cleanText(item.description || item.content || ""),
                         pubDate: item.pubDate,
-                        thumbnail: extractBestImageFromItem(item)
+                        imageUrl: item.thumbnail || extractImageFromText(item.description || item.content),
+                        sourceName: sourceName
                     }));
                 }
                 return [];
             } catch (error) {
-                console.error(`Erreur fetch pour ${url}:`, error);
+                console.error(`Erreur chargement ${url}:`, error);
                 return [];
             }
         }
-
-        function extractBestImageFromItem(item) {
-            // Vérifier thumbnail
-            if (item.thumbnail && item.thumbnail.startsWith('http')) {
-                return item.thumbnail;
-            }
-            
-            // Vérifier enclosure
-            if (item.enclosure && item.enclosure.link && item.enclosure.link.startsWith('http')) {
-                return item.enclosure.link;
-            }
-            
-            // Extraire du contenu
-            const content = item.content || item.description || '';
+        
+        function extractImageFromText(text) {
+            if (!text) return null;
             const imgRegex = /<img[^>]+src=["']([^"']+)["']/i;
-            const match = content.match(imgRegex);
-            if (match && match[1] && match[1].startsWith('http')) {
+            const match = text.match(imgRegex);
+            if (match && match[1] && match[1].startsWith("http")) {
                 return match[1];
             }
-            
             return null;
         }
-
+        
         function getSourceName(url) {
-            if (url.includes('it-connect')) return 'IT-Connect';
-            if (url.includes('01net')) return '01Net';
-            if (url.includes('frandroid')) return 'Frandroid';
-            if (url.includes('iphoneaddict')) return 'iPhoneAddict';
-            if (url.includes('lemondeinformatique')) return 'Le Monde Informatique';
-            if (url.includes('windowscentral')) return 'Windows Central';
-            try {
-                const hostname = new URL(url).hostname.replace('www.', '');
-                return hostname.split('.')[0].charAt(0).toUpperCase() + hostname.split('.')[0].slice(1);
-            } catch {
-                return "Source IT";
-            }
+            if (url.includes("clubic")) return "Clubic";
+            if (url.includes("lesnumeriques")) return "Les Numériques";
+            if (url.includes("windowscentral")) return "Windows Central";
+            if (url.includes("androidcentral")) return "Android Central";
+            if (url.includes("iphoneaddict")) return "iPhoneAddict";
+            if (url.includes("lemondeinformatique")) return "Le Monde Informatique";
+            return "Source";
         }
-
-        function renderArticles(articles) {
-            const feedContainer = document.getElementById("feed");
-            const emptyState = document.getElementById("empty-state");
-            feedContainer.innerHTML = "";
-
-            if (articles.length === 0) {
-                emptyState.classList.remove("hidden");
-                return;
-            }
-
-            emptyState.classList.add("hidden");
-
-            articles.forEach((article, index) => {
-                const description = article.description || "Cliquez pour lire l'article complet";
-                const title = article.title || "Article";
-                
-                let formattedDate = "Date inconnue";
-                if (article.pubDate) {
-                    const dateObj = new Date(article.pubDate);
-                    if (!isNaN(dateObj.getTime())) {
-                        formattedDate = dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-                    }
-                }
-
-                // Image par défaut par catégorie
-                const defaultImages = {
-                    it: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&h=400&fit=crop',
-                    windows: 'https://images.unsplash.com/photo-1574169208507-84376144848b?w=600&h=400&fit=crop',
-                    android: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop',
-                    iphone: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=600&h=400&fit=crop',
-                    cyber: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&h=400&fit=crop'
-                };
-                
-                const imageUrl = article.thumbnail || defaultImages[currentCategoryKey] || defaultImages.it;
-                const uniqueId = `img-${Date.now()}-${index}`;
-
-                const cardHTML = `
-                    <a href="${article.link || '#'}" target="_blank" rel="noopener noreferrer" class="group block bg-card rounded-xl overflow-hidden border border-gray-800/50 card-hover-effect">
-                        <div class="relative h-52 overflow-hidden bg-gray-900">
-                            <img id="${uniqueId}" 
-                                 src="${imageUrl}" 
-                                 alt="${escapeHtml(title)}" 
-                                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                 loading="lazy"
-                                 onload="this.classList.add('loaded')"
-                                 onerror="this.onerror=null; this.src='${defaultImages[currentCategoryKey] || defaultImages.it}'; this.classList.add('loaded')">
-                            <div class="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent"></div>
-                            <div class="absolute top-3 left-3">
-                                <span class="px-2.5 py-1 bg-black/70 backdrop-blur-sm rounded-lg text-xs font-medium text-primary">
-                                    ${escapeHtml(article.sourceName || 'Source')}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="p-5">
-                            <div class="flex items-center gap-2 text-xs text-gray-500 mb-3">
-                                <i data-lucide="calendar" class="w-3 h-3"></i>
-                                <span>${formattedDate}</span>
-                            </div>
-                            <h3 class="text-lg font-semibold text-white leading-tight mb-3 group-hover:text-primary transition-colors line-clamp-2">
-                                ${escapeHtml(title)}
-                            </h3>
-                            <p class="text-sm text-gray-400 line-clamp-3 mb-4">
-                                ${escapeHtml(description.length > 120 ? description.substring(0, 120) + '...' : description)}
-                            </p>
-                            <div class="flex items-center justify-between pt-3 border-t border-gray-800/50">
-                                <span class="text-xs text-gray-500 flex items-center gap-1">
-                                    <i data-lucide="clock" class="w-3 h-3"></i>
-                                    ${Math.max(1, Math.ceil(description.length / 500))} min de lecture
-                                </span>
-                                <span class="text-primary text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
-                                    Lire <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </a>
-                `;
-                feedContainer.insertAdjacentHTML('beforeend', cardHTML);
-            });
-            lucide.createIcons();
-        }
-
-        function filterArticles() {
-            const query = document.getElementById("search").value.toLowerCase().trim();
-            
-            if (!query) {
-                renderArticles(allCurrentArticles);
-                document.getElementById("article-count").textContent = `${allCurrentArticles.length} articles`;
-                return;
-            }
-            
-            const filtered = allCurrentArticles.filter(article => 
-                (article.title && article.title.toLowerCase().includes(query)) || 
-                (article.description && article.description.toLowerCase().includes(query))
-            );
-            renderArticles(filtered);
-            document.getElementById("article-count").textContent = `${filtered.length} résultats`;
-        }
-
-        function cleanText(html) {
-            if (!html) return "";
-            let text = html.replace(/<[^>]*>/g, '');
-            text = text.replace(/&nbsp;/g, ' ');
-            text = text.replace(/&amp;/g, '&');
-            text = text.replace(/&lt;/g, '<');
-            text = text.replace(/&gt;/g, '>');
-            text = text.replace(/&quot;/g, '"');
-            text = text.replace(/&eacute;/g, 'é');
-            text = text.replace(/&egrave;/g, 'è');
-            text = text.replace(/&ecirc;/g, 'ê');
-            text = text.replace(/&agrave;/g, 'à');
-            text = text.replace(/&acirc;/g, 'â');
-            text = text.replace(/&uuml;/g, 'ü');
-            text = text.replace(/&ouml;/g, 'ö');
-            text = text.replace(/&iuml;/g, 'ï');
-            return text.trim();
-        }
-
-        function escapeHtml(text) {
+        
+        function cleanText(text) {
             if (!text) return "";
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+            let cleaned = text.replace(/<[^>]*>/g, "");
+            cleaned = cleaned.replace(/&nbsp;/g, " ");
+            cleaned = cleaned.replace(/&amp;/g, "&");
+            cleaned = cleaned.replace(/&lt;/g, "<");
+            cleaned = cleaned.replace(/&gt;/g, ">");
+            cleaned = cleaned.replace(/&quot;/g, '"');
+            cleaned = cleaned.replace(/&eacute;/g, "é");
+            cleaned = cleaned.replace(/&egrave;/g, "è");
+            cleaned = cleaned.replace(/&ecirc;/g, "ê");
+            cleaned = cleaned.replace(/&agrave;/g, "à");
+            cleaned = cleaned.replace(/&acirc;/g, "â");
+            cleaned = cleaned.replace(/&ccedil;/g, "ç");
+            cleaned = cleaned.replace(/&rsquo;/g, "'");
+            cleaned = cleaned.replace(/&lsquo;/g, "'");
+            cleaned = cleaned.replace(/&ldquo;/g, '"');
+            cleaned = cleaned.replace(/&rdquo;/g, '"');
+            return cleaned.trim();
         }
-
-        function showLoader() {
-            const loader = document.getElementById("loader");
-            loader.innerHTML = '';
-            loader.classList.remove("hidden");
-            for(let i = 0; i < 6; i++) {
-                loader.innerHTML += `
-                    <div class="bg-card rounded-xl overflow-hidden border border-gray-800/50">
-                        <div class="h-52 shimmer"></div>
-                        <div class="p-5 space-y-3">
-                            <div class="h-3 bg-gray-800 rounded w-1/3 shimmer"></div>
-                            <div class="h-5 bg-gray-700 rounded w-full shimmer"></div>
-                            <div class="h-5 bg-gray-700 rounded w-5/6 shimmer"></div>
-                            <div class="h-3 bg-gray-800 rounded w-full mt-4 shimmer"></div>
-                            <div class="h-3 bg-gray-800 rounded w-2/3 shimmer"></div>
+        
+        function renderArticles(articles) {
+            const grid = document.getElementById("articlesGrid");
+            grid.innerHTML = "";
+            
+            const defaultImage = DEFAULT_IMAGES[currentCategory] || DEFAULT_IMAGES.tech;
+            
+            articles.forEach((article) => {
+                const date = formatDate(article.pubDate);
+                const imageUrl = article.imageUrl && article.imageUrl.startsWith("http") ? article.imageUrl : defaultImage;
+                const description = article.description.substring(0, 150) || "Cliquez pour lire l'article complet";
+                const title = article.title || "Article sans titre";
+                
+                const card = document.createElement("a");
+                card.href = article.link;
+                card.target = "_blank";
+                card.rel = "noopener noreferrer";
+                card.className = "block bg-gray-900 rounded-xl overflow-hidden border border-gray-800 card-hover";
+                card.innerHTML = `
+                    <div class="relative h-48 overflow-hidden bg-gray-800">
+                        <img src="${imageUrl}" 
+                             alt="${escapeHtml(title)}"
+                             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                             loading="lazy"
+                             onload="this.classList.add('loaded')"
+                             onerror="this.src='${defaultImage}'; this.classList.add('loaded')">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
+                        <div class="absolute top-3 left-3">
+                            <span class="px-2 py-1 bg-black/60 backdrop-blur-sm rounded-lg text-xs font-medium text-blue-400">
+                                ${escapeHtml(article.sourceName)}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <div class="flex items-center gap-2 text-xs text-gray-500 mb-3">
+                            <i data-lucide="calendar" class="w-3 h-3"></i>
+                            <span>${date}</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-white mb-2 line-clamp-2 hover:text-blue-400 transition-colors">
+                            ${escapeHtml(title)}
+                        </h3>
+                        <p class="text-sm text-gray-400 line-clamp-3">
+                            ${escapeHtml(description)}
+                        </p>
+                        <div class="mt-4 pt-3 border-t border-gray-800 flex justify-between items-center">
+                            <span class="text-xs text-gray-500">📖 ${Math.max(1, Math.ceil(description.length / 500))} min</span>
+                            <span class="text-blue-400 text-sm flex items-center gap-1">Lire <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
                         </div>
                     </div>
                 `;
+                grid.appendChild(card);
+            });
+            
+            lucide.createIcons({ root: grid });
+        }
+        
+        function formatDate(dateString) {
+            if (!dateString) return "Date inconnue";
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return "Date inconnue";
+                return date.toLocaleDateString("fr-FR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+            } catch {
+                return "Date inconnue";
             }
         }
-
-        function hideLoader() {
-            document.getElementById("loader").classList.add("hidden");
+        
+        function filterArticles() {
+            const query = document.getElementById("searchInput").value.toLowerCase().trim();
+            if (!query) {
+                document.getElementById("articleCount").textContent = `${allArticles.length} articles`;
+                renderArticles(allArticles);
+                return;
+            }
+            const filtered = allArticles.filter(article => 
+                article.title.toLowerCase().includes(query) || 
+                article.description.toLowerCase().includes(query)
+            );
+            document.getElementById("articleCount").textContent = `${filtered.length} résultats`;
+            renderArticles(filtered);
         }
-
-        document.addEventListener('DOMContentLoaded', initApp);
+        
+        function refreshCurrentCategory() {
+            if (isLoading) return;
+            timerSeconds = 0;
+            loadArticles();
+        }
+        
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (timerSeconds <= 0) {
+                    timerSeconds = 300;
+                    if (!isLoading) loadArticles();
+                } else {
+                    timerSeconds--;
+                    const minutes = Math.floor(timerSeconds / 60);
+                    const seconds = timerSeconds % 60;
+                    document.getElementById("timer").textContent = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+                    document.getElementById("timerProgress").style.width = `${((300 - timerSeconds) / 300) * 100}%`;
+                }
+            }, 1000);
+        }
+        
+        function showSkeletons(show) {
+            const skeletonContainer = document.getElementById("skeletonLoader");
+            const grid = document.getElementById("articlesGrid");
+            
+            if (show) {
+                skeletonContainer.innerHTML = "";
+                skeletonContainer.classList.remove("hidden");
+                grid.classList.add("hidden");
+                for (let i = 0; i < 6; i++) {
+                    skeletonContainer.innerHTML += `<div class="bg-gray-900 rounded-xl overflow-hidden border border-gray-800"><div class="h-48 skeleton"></div><div class="p-5 space-y-3"><div class="h-3 w-1/3 skeleton rounded"></div><div class="h-5 w-full skeleton rounded"></div><div class="h-5 w-5/6 skeleton rounded"></div><div class="h-3 w-full mt-4 skeleton rounded"></div></div></div>`;
+                }
+            } else {
+                skeletonContainer.classList.add("hidden");
+                grid.classList.remove("hidden");
+            }
+        }
+        
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("-translate-x-full");
+            document.getElementById("overlay").classList.toggle("hidden");
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return "";
+            const div = document.createElement("div");
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        document.addEventListener("DOMContentLoaded", init);
     </script>
 </body>
 </html>
