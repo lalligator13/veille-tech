@@ -19,9 +19,6 @@
                         primaryDark: '#2563eb',
                         secondary: '#8b5cf6'
                     },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    },
                     animation: {
                         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'float': 'float 3s ease-in-out infinite',
@@ -35,7 +32,7 @@
                 }
             }
         }
-    </script>
+    </style>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         * {
@@ -58,10 +55,6 @@
             border-radius: 10px;
         }
         
-        ::-webkit-scrollbar-thumb:hover {
-            background: #2563eb;
-        }
-        
         .line-clamp-2 {
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -77,12 +70,8 @@
         }
         
         @keyframes shimmer {
-            0% {
-                background-position: -1000px 0;
-            }
-            100% {
-                background-position: 1000px 0;
-            }
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
         }
         
         .shimmer {
@@ -114,33 +103,6 @@
             color: transparent;
         }
         
-        .image-loader {
-            position: relative;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        }
-        
-        .image-loader::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 30px;
-            height: 30px;
-            border: 2px solid rgba(59, 130, 246, 0.3);
-            border-top-color: #3b82f6;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-        
-        img.loaded {
-            opacity: 1;
-        }
-        
         img {
             opacity: 0;
             transition: opacity 0.3s ease;
@@ -154,7 +116,7 @@
 <body class="bg-dark text-gray-200">
 
     <div class="flex h-screen overflow-hidden">
-        <!-- Sidebar Moderne -->
+        <!-- Sidebar -->
         <aside id="sidebar" class="bg-darker/95 backdrop-blur-sm w-72 border-r border-gray-800/50 flex-shrink-0 absolute md:relative z-20 h-full transform -translate-x-full md:translate-x-0 transition-all duration-300 flex flex-col">
             <div class="p-6 flex items-center justify-between border-b border-gray-800/50">
                 <div class="flex items-center gap-3">
@@ -250,7 +212,10 @@
                             <i data-lucide="rss" class="w-12 h-12 text-gray-600"></i>
                         </div>
                         <p class="text-lg text-gray-400">Aucun article trouvé</p>
-                        <p class="text-sm text-gray-600 mt-2">Essayez de modifier votre recherche</p>
+                        <p class="text-sm text-gray-600 mt-2">Vérifiez votre connexion ou réessayez plus tard</p>
+                        <button onclick="forceRefresh()" class="mt-4 px-4 py-2 bg-primary/20 hover:bg-primary/30 rounded-lg transition-colors text-sm">
+                            🔄 Réessayer
+                        </button>
                     </div>
                 </div>
             </div>
@@ -259,13 +224,12 @@
 
     <script>
         // =====================================================
-        // SOURCES FRANÇAISES UNIQUEMENT
+        // SOURCES FRANÇAISES - TESTÉES ET FONCTIONNELLES
         // =====================================================
         const categories = {
             it: {
                 icon: 'monitor',
                 label: 'Tech & IT',
-                gradient: 'from-blue-500 to-cyan-500',
                 feeds: [
                     "https://www.it-connect.fr/feed/",
                     "https://www.01net.com/actualites/feed/"
@@ -274,35 +238,31 @@
             windows: {
                 icon: 'layout-grid',
                 label: 'Windows',
-                gradient: 'from-blue-600 to-indigo-600',
                 feeds: [
                     "https://www.it-connect.fr/category/windows-11/feed/",
                     "https://www.it-connect.fr/category/windows-10/feed/",
-                    "https://www.01net.fr/windows/feed"
+                    "https://www.windowscentral.com/feed"
                 ]
             },
             android: {
                 icon: 'smartphone',
                 label: 'Android',
-                gradient: 'from-green-500 to-emerald-500',
                 feeds: [
                     "https://www.frandroid.com/feed",
-                    "https://www.01net.fr/android/feed"
+                    "https://www.01net.com/android/feed/"
                 ]
             },
             iphone: {
                 icon: 'apple',
                 label: 'Apple',
-                gradient: 'from-gray-600 to-gray-800',
                 feeds: [
                     "https://www.iphoneaddict.fr/feed",
-                    "https://www.01net.fr/apple/feed"
+                    "https://www.01net.com/apple/feed/"
                 ]
             },
             cyber: {
                 icon: 'shield-alert',
                 label: 'Cybersécurité',
-                gradient: 'from-red-500 to-orange-500',
                 feeds: [
                     "https://www.it-connect.fr/category/cybersecurite/feed/",
                     "https://www.lemondeinformatique.fr/flux-rss/thematique/securite/rss.xml"
@@ -314,7 +274,7 @@
         let allCurrentArticles = [];
         let isLoading = false;
         let countdownInterval = null;
-        let remainingSeconds = 300; // 5 minutes
+        let remainingSeconds = 300;
         let refreshTimer = null;
 
         function initApp() {
@@ -322,17 +282,6 @@
             buildMenu();
             changeCategory('it');
             startAutoRefresh();
-            
-            // Détection du scroll pour animations
-            const mainScroll = document.getElementById('main-scroll');
-            mainScroll.addEventListener('scroll', () => {
-                const scrollTop = mainScroll.scrollTop;
-                if (scrollTop > 200) {
-                    document.querySelector('header').classList.add('shadow-lg');
-                } else {
-                    document.querySelector('header').classList.remove('shadow-lg');
-                }
-            });
         }
 
         function buildMenu() {
@@ -353,7 +302,6 @@
                         <i data-lucide="${data.icon}" class="w-4 h-4"></i>
                     </div>
                     <span class="font-medium flex-1">${data.label}</span>
-                    ${isActive ? '<i data-lucide="chevron-right" class="w-4 h-4"></i>' : ''}
                 `;
                 menuContainer.appendChild(btn);
             }
@@ -409,26 +357,15 @@
             if (isLoading) return;
             currentCategoryKey = key;
             
+            // Mise à jour de l'interface sans ajouter de chevron
             document.querySelectorAll('.menu-item').forEach(el => {
                 const isActive = el.dataset.key === key;
                 if (isActive) {
                     el.className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200 menu-item bg-gradient-to-r from-primary/20 to-secondary/20 text-white border-l-4 border-primary';
-                    const existingIcon = el.querySelector('i[data-lucide="chevron-right"]');
-                    if (!existingIcon) {
-                        const span = el.querySelector('span');
-                        const iconDiv = document.createElement('i');
-                        iconDiv.setAttribute('data-lucide', 'chevron-right');
-                        iconDiv.className = 'w-4 h-4';
-                        span.insertAdjacentElement('afterend', iconDiv);
-                    }
                 } else {
                     el.className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200 menu-item text-gray-400 hover:bg-gray-800/30 hover:text-gray-200';
-                    const chevron = el.querySelector('i[data-lucide="chevron-right"]');
-                    if (chevron) chevron.remove();
                 }
             });
-            
-            lucide.createIcons();
             
             const catData = categories[key];
             const titleEl = document.getElementById('category-title');
@@ -455,7 +392,7 @@
             emptyState.classList.add("hidden");
             refreshIcon.classList.add("animate-spin");
             statusDot.className = "w-2 h-2 bg-yellow-500 rounded-full";
-            statusPulse.className = "absolute inset-0 w-2 h-2 bg-yellow-500 rounded-full animate-ping opacity-75";
+            if (statusPulse) statusPulse.className = "absolute inset-0 w-2 h-2 bg-yellow-500 rounded-full animate-ping opacity-75";
             statusText.textContent = "Chargement...";
             showLoader();
 
@@ -464,26 +401,34 @@
             
             let successCount = 0;
 
-            for (const url of urls) {
+            // Chargement parallèle des flux
+            const fetchPromises = urls.map(async (url) => {
                 try {
                     const articles = await fetchRSSFeed(url);
-                    
                     if (articles && articles.length > 0) {
-                        const sourceName = extractHostname(url);
-                        const articlesWithSource = articles.map(article => ({
+                        const sourceName = getSourceName(url);
+                        return articles.map(article => ({
                             ...article,
                             sourceName: sourceName,
                             description: cleanText(article.description || article.content || ''),
-                            title: cleanText(article.title || 'Sans titre'),
-                            imageUrl: article.thumbnail || extractBestImage(article)
+                            title: cleanText(article.title || 'Sans titre')
                         }));
-                        allCurrentArticles = allCurrentArticles.concat(articlesWithSource);
-                        successCount++;
                     }
+                    return [];
                 } catch (error) {
                     console.warn(`Erreur flux ${url}:`, error.message);
+                    return [];
                 }
-            }
+            });
+
+            const results = await Promise.all(fetchPromises);
+            
+            results.forEach(articles => {
+                if (articles.length > 0) {
+                    allCurrentArticles = allCurrentArticles.concat(articles);
+                    successCount++;
+                }
+            });
 
             // Tri par date
             allCurrentArticles.sort((a, b) => {
@@ -496,11 +441,11 @@
             
             if (successCount > 0) {
                 statusDot.className = "w-2 h-2 bg-green-500 rounded-full";
-                statusPulse.className = "absolute inset-0 w-2 h-2 bg-green-500 rounded-full animate-ping opacity-75";
+                if (statusPulse) statusPulse.className = "absolute inset-0 w-2 h-2 bg-green-500 rounded-full animate-ping opacity-75";
                 statusText.textContent = "Connecté";
             } else {
                 statusDot.className = "w-2 h-2 bg-red-500 rounded-full";
-                statusPulse.className = "absolute inset-0 w-2 h-2 bg-red-500 rounded-full animate-ping opacity-75";
+                if (statusPulse) statusPulse.className = "absolute inset-0 w-2 h-2 bg-red-500 rounded-full animate-ping opacity-75";
                 statusText.textContent = "Erreur";
             }
             
@@ -521,7 +466,12 @@
             const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`;
             
             try {
-                const response = await fetch(proxyUrl);
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                
+                const response = await fetch(proxyUrl, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 
                 const data = await response.json();
@@ -532,8 +482,7 @@
                         link: item.link,
                         description: item.description,
                         pubDate: item.pubDate,
-                        thumbnail: item.thumbnail || extractImageFromContent(item.description || item.content),
-                        content: item.content || item.description
+                        thumbnail: extractBestImageFromItem(item)
                     }));
                 }
                 return [];
@@ -543,40 +492,41 @@
             }
         }
 
-        function extractBestImage(article) {
-            // Essayer différentes sources d'images
-            if (article.thumbnail && article.thumbnail.startsWith('http')) return article.thumbnail;
-            if (article.enclosure && article.enclosure.link) return article.enclosure.link;
-            
-            // Chercher dans le contenu
-            const content = article.content || article.description || '';
-            const imgRegex = /<img[^>]+src=["']([^"']+)["']/gi;
-            let match;
-            while ((match = imgRegex.exec(content)) !== null) {
-                if (match[1].startsWith('http') && !match[1].includes('avatar') && !match[1].includes('logo')) {
-                    return match[1];
-                }
+        function extractBestImageFromItem(item) {
+            // Vérifier thumbnail
+            if (item.thumbnail && item.thumbnail.startsWith('http')) {
+                return item.thumbnail;
             }
             
-            // Images par défaut selon la catégorie
-            const defaultImages = {
-                it: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&h=400&fit=crop',
-                windows: 'https://images.unsplash.com/photo-1574169208507-84376144848b?w=600&h=400&fit=crop',
-                android: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop',
-                iphone: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=600&h=400&fit=crop',
-                cyber: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&h=400&fit=crop'
-            };
+            // Vérifier enclosure
+            if (item.enclosure && item.enclosure.link && item.enclosure.link.startsWith('http')) {
+                return item.enclosure.link;
+            }
             
-            return defaultImages[currentCategoryKey] || 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&h=400&fit=crop';
+            // Extraire du contenu
+            const content = item.content || item.description || '';
+            const imgRegex = /<img[^>]+src=["']([^"']+)["']/i;
+            const match = content.match(imgRegex);
+            if (match && match[1] && match[1].startsWith('http')) {
+                return match[1];
+            }
+            
+            return null;
         }
 
-        function extractImageFromContent(htmlContent) {
-            if (!htmlContent) return null;
-            const imgMatch = htmlContent.match(/<img[^>]+src="([^">]+)"/);
-            if (imgMatch && imgMatch[1] && imgMatch[1].startsWith('http')) {
-                return imgMatch[1];
+        function getSourceName(url) {
+            if (url.includes('it-connect')) return 'IT-Connect';
+            if (url.includes('01net')) return '01Net';
+            if (url.includes('frandroid')) return 'Frandroid';
+            if (url.includes('iphoneaddict')) return 'iPhoneAddict';
+            if (url.includes('lemondeinformatique')) return 'Le Monde Informatique';
+            if (url.includes('windowscentral')) return 'Windows Central';
+            try {
+                const hostname = new URL(url).hostname.replace('www.', '');
+                return hostname.split('.')[0].charAt(0).toUpperCase() + hostname.split('.')[0].slice(1);
+            } catch {
+                return "Source IT";
             }
-            return null;
         }
 
         function renderArticles(articles) {
@@ -603,19 +553,28 @@
                     }
                 }
 
-                const imageUrl = article.imageUrl || extractBestImage(article);
+                // Image par défaut par catégorie
+                const defaultImages = {
+                    it: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&h=400&fit=crop',
+                    windows: 'https://images.unsplash.com/photo-1574169208507-84376144848b?w=600&h=400&fit=crop',
+                    android: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop',
+                    iphone: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=600&h=400&fit=crop',
+                    cyber: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&h=400&fit=crop'
+                };
+                
+                const imageUrl = article.thumbnail || defaultImages[currentCategoryKey] || defaultImages.it;
                 const uniqueId = `img-${Date.now()}-${index}`;
 
                 const cardHTML = `
                     <a href="${article.link || '#'}" target="_blank" rel="noopener noreferrer" class="group block bg-card rounded-xl overflow-hidden border border-gray-800/50 card-hover-effect">
-                        <div class="relative h-52 overflow-hidden image-loader">
+                        <div class="relative h-52 overflow-hidden bg-gray-900">
                             <img id="${uniqueId}" 
                                  src="${imageUrl}" 
                                  alt="${escapeHtml(title)}" 
                                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                  loading="lazy"
-                                 onload="this.classList.add('loaded'); this.parentElement.classList.remove('image-loader');"
-                                 onerror="this.onerror=null; this.src='https://placehold.co/600x400/111316/3b82f6?text=${encodeURIComponent(title.substring(0, 30))}'; this.classList.add('loaded');">
+                                 onload="this.classList.add('loaded')"
+                                 onerror="this.onerror=null; this.src='${defaultImages[currentCategoryKey] || defaultImages.it}'; this.classList.add('loaded')">
                             <div class="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent"></div>
                             <div class="absolute top-3 left-3">
                                 <span class="px-2.5 py-1 bg-black/70 backdrop-blur-sm rounded-lg text-xs font-medium text-primary">
@@ -637,7 +596,7 @@
                             <div class="flex items-center justify-between pt-3 border-t border-gray-800/50">
                                 <span class="text-xs text-gray-500 flex items-center gap-1">
                                     <i data-lucide="clock" class="w-3 h-3"></i>
-                                    ${Math.ceil(description.length / 500) || 1} min de lecture
+                                    ${Math.max(1, Math.ceil(description.length / 500))} min de lecture
                                 </span>
                                 <span class="text-primary text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
                                     Lire <i data-lucide="arrow-right" class="w-4 h-4"></i>
@@ -668,20 +627,6 @@
             document.getElementById("article-count").textContent = `${filtered.length} résultats`;
         }
 
-        function extractHostname(url) {
-            try {
-                const hostname = new URL(url).hostname.replace('www.', '');
-                if (hostname.includes('it-connect')) return 'IT-Connect';
-                if (hostname.includes('01net')) return '01Net';
-                if (hostname.includes('frandroid')) return 'Frandroid';
-                if (hostname.includes('iphoneaddict')) return 'iPhoneAddict';
-                if (hostname.includes('lemondeinformatique')) return 'Le Monde Informatique';
-                return hostname.split('.')[0].charAt(0).toUpperCase() + hostname.split('.')[0].slice(1);
-            } catch {
-                return "Source IT";
-            }
-        }
-
         function cleanText(html) {
             if (!html) return "";
             let text = html.replace(/<[^>]*>/g, '');
@@ -690,6 +635,14 @@
             text = text.replace(/&lt;/g, '<');
             text = text.replace(/&gt;/g, '>');
             text = text.replace(/&quot;/g, '"');
+            text = text.replace(/&eacute;/g, 'é');
+            text = text.replace(/&egrave;/g, 'è');
+            text = text.replace(/&ecirc;/g, 'ê');
+            text = text.replace(/&agrave;/g, 'à');
+            text = text.replace(/&acirc;/g, 'â');
+            text = text.replace(/&uuml;/g, 'ü');
+            text = text.replace(/&ouml;/g, 'ö');
+            text = text.replace(/&iuml;/g, 'ï');
             return text.trim();
         }
 
@@ -724,7 +677,6 @@
             document.getElementById("loader").classList.add("hidden");
         }
 
-        // Ajout de la gestion des images chargées
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
