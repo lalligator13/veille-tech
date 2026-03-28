@@ -138,6 +138,7 @@
         .article-card {
             animation: slideIn 0.5s ease-out forwards;
             opacity: 0;
+            cursor: pointer;
         }
         
         .refresh-rotate {
@@ -153,6 +154,87 @@
         
         .float-animation {
             animation: float 3s ease-in-out infinite;
+        }
+        
+        .article-view {
+            animation: slideIn 0.5s ease-out forwards;
+        }
+        
+        .article-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        
+        .article-content p {
+            margin-bottom: 1.2rem;
+            line-height: 1.7;
+            color: #d1d5db;
+            font-size: 1rem;
+        }
+        
+        .article-content h1, .article-content h2, .article-content h3 {
+            color: white;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .article-content h1 { font-size: 1.8rem; }
+        .article-content h2 { font-size: 1.5rem; }
+        .article-content h3 { font-size: 1.3rem; }
+        
+        .article-content a {
+            color: #3b82f6;
+            text-decoration: underline;
+        }
+        
+        .article-content ul, .article-content ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+            color: #d1d5db;
+        }
+        
+        .article-content li {
+            margin: 0.5rem 0;
+        }
+        
+        .article-content blockquote {
+            border-left: 4px solid #3b82f6;
+            padding-left: 1rem;
+            margin: 1rem 0;
+            color: #9ca3af;
+            font-style: italic;
+        }
+        
+        .article-content pre {
+            background: #1f2937;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        .article-content code {
+            background: #1f2937;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        
+        .back-button {
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            transform: translateX(-4px);
         }
     </style>
 </head>
@@ -216,29 +298,48 @@
             
             <div class="flex-1 overflow-y-auto p-4 md:p-6" id="contentArea">
                 <div class="max-w-7xl mx-auto">
-                    <div class="flex justify-between items-center mb-6">
-                        <div>
-                            <h2 id="categoryTitle" class="text-2xl font-bold flex items-center gap-2">
-                                <i data-lucide="activity" class="text-blue-500 w-6 h-6 float-animation"></i>
-                                <span class="gradient-text">Tech - IT</span>
-                            </h2>
-                            <p class="text-gray-500 text-sm mt-1">Actualités IT - IT-Connect</p>
+                    <!-- Vue liste des articles -->
+                    <div id="listView">
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <h2 id="categoryTitle" class="text-2xl font-bold flex items-center gap-2">
+                                    <i data-lucide="activity" class="text-blue-500 w-6 h-6 float-animation"></i>
+                                    <span class="gradient-text">Tech - IT</span>
+                                </h2>
+                                <p class="text-gray-500 text-sm mt-1">Actualités IT - IT-Connect</p>
+                            </div>
+                            <div class="bg-gray-800 px-3 py-1 rounded-lg">
+                                <span id="articleCount" class="text-sm text-gray-400">0 articles</span>
+                            </div>
                         </div>
-                        <div class="bg-gray-800 px-3 py-1 rounded-lg">
-                            <span id="articleCount" class="text-sm text-gray-400">0 articles</span>
+                        
+                        <div id="articlesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                        <div id="skeletonLoader" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"></div>
+                        <div id="emptyState" class="hidden flex flex-col items-center justify-center py-20">
+                            <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mb-4 animate-pulse">
+                                <i data-lucide="inbox" class="w-10 h-10 text-gray-600"></i>
+                            </div>
+                            <p class="text-gray-400 text-lg">Aucun article trouvé</p>
+                            <button onclick="refreshCurrentCategory()" class="mt-4 px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 rounded-lg text-sm transition-all hover:scale-105">
+                                🔄 Réessayer
+                            </button>
                         </div>
                     </div>
                     
-                    <div id="articlesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-                    <div id="skeletonLoader" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"></div>
-                    <div id="emptyState" class="hidden flex flex-col items-center justify-center py-20">
-                        <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mb-4 animate-pulse">
-                            <i data-lucide="inbox" class="w-10 h-10 text-gray-600"></i>
-                        </div>
-                        <p class="text-gray-400 text-lg">Aucun article trouvé</p>
-                        <button onclick="refreshCurrentCategory()" class="mt-4 px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 rounded-lg text-sm transition-all hover:scale-105">
-                            🔄 Réessayer
+                    <!-- Vue article individuel -->
+                    <div id="articleView" class="hidden">
+                        <button onclick="backToList()" class="back-button mb-6 flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-all bg-gray-800/50 px-4 py-2 rounded-lg">
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                            <span>Retour aux articles</span>
                         </button>
+                        <div id="articleContent" class="article-view bg-gray-900 rounded-2xl border border-gray-800 p-6 md:p-10">
+                            <div class="article-content" id="articleBody">
+                                <div class="flex items-center justify-center py-20">
+                                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                                    <p class="ml-3 text-gray-400">Chargement de l'article...</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -246,9 +347,6 @@
     </div>
 
     <script>
-        // ============================================
-        // CATÉGORIES - TECH-IT AVEC UNIQUEMENT IT-CONNECT
-        // ============================================
         const CATEGORIES = {
             tech_it: {
                 name: "Tech - IT",
@@ -306,9 +404,6 @@
             cyber: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&h=400&fit=crop"
         };
         
-        // ============================================
-        // INITIALISATION
-        // ============================================
         function init() {
             lucide.createIcons();
             buildMenu();
@@ -343,7 +438,115 @@
             document.getElementById("categoryTitle").innerHTML = `<i data-lucide="${cat.icon}" class="text-blue-500 w-6 h-6 float-animation"></i><span class="gradient-text">${cat.name}</span>`;
             lucide.createIcons();
             document.getElementById("searchInput").value = "";
+            backToList();
             loadArticles();
+        }
+        
+        function backToList() {
+            document.getElementById("listView").classList.remove("hidden");
+            document.getElementById("articleView").classList.add("hidden");
+            document.getElementById("searchInput").disabled = false;
+            document.getElementById("searchInput").placeholder = "Rechercher un article...";
+        }
+        
+        async function showArticle(article) {
+            document.getElementById("listView").classList.add("hidden");
+            document.getElementById("articleView").classList.remove("hidden");
+            document.getElementById("searchInput").disabled = true;
+            document.getElementById("searchInput").placeholder = "Lecture en cours...";
+            
+            const articleBody = document.getElementById("articleBody");
+            articleBody.innerHTML = `
+                <div class="flex items-center justify-center py-20">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                    <p class="ml-3 text-gray-400">Chargement de l'article...</p>
+                </div>
+            `;
+            
+            await loadFullArticleContent(article);
+        }
+        
+        async function loadFullArticleContent(article) {
+            try {
+                // Utiliser le proxy rss2json pour récupérer le contenu complet
+                const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(article.link)}`;
+                const response = await fetch(proxyUrl);
+                
+                if (!response.ok) throw new Error("Impossible de charger l'article");
+                
+                const data = await response.json();
+                
+                let content = "";
+                
+                if (data && data.status === "ok" && data.items && data.items.length > 0) {
+                    // Récupérer le contenu complet de l'article depuis le flux
+                    const fullItem = data.items[0];
+                    content = fullItem.description || fullItem.content || "";
+                    
+                    // Nettoyer et améliorer le contenu
+                    content = cleanHtmlContent(content);
+                } else {
+                    // Fallback: utiliser la description déjà disponible
+                    content = article.description || "Contenu non disponible";
+                }
+                
+                const dateStr = article.pubDate ? formatDate(article.pubDate) : "Date inconnue";
+                
+                const finalHtml = `
+                    <div class="mb-6 pb-6 border-b border-gray-800">
+                        <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">${escapeHtml(article.title)}</h1>
+                        <div class="flex items-center gap-4 text-sm text-gray-500">
+                            <span class="flex items-center gap-1"><i data-lucide="globe" class="w-4 h-4"></i>${escapeHtml(article.sourceName)}</span>
+                            <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-4 h-4"></i>${dateStr}</span>
+                        </div>
+                    </div>
+                    <div class="prose prose-invert max-w-none">
+                        ${content}
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-gray-800 text-center text-gray-500 text-sm">
+                        <i data-lucide="external-link" class="w-4 h-4 inline mr-1"></i>
+                        Source: ${escapeHtml(article.sourceName)}
+                    </div>
+                `;
+                
+                articleBody.innerHTML = finalHtml;
+                lucide.createIcons({ root: articleBody });
+                
+            } catch (error) {
+                console.error("Erreur chargement article:", error);
+                articleBody.innerHTML = `
+                    <div class="text-center py-20">
+                        <i data-lucide="alert-circle" class="w-16 h-16 text-yellow-500 mx-auto mb-4"></i>
+                        <p class="text-gray-400 text-lg">Contenu disponible dans la version originale</p>
+                        <p class="text-gray-500 text-sm mt-2">L'article complet peut être consulté directement sur le site source :</p>
+                        <a href="${article.link}" target="_blank" rel="noopener noreferrer" class="inline-block mt-4 px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 rounded-lg text-blue-400 transition">
+                            Lire sur ${escapeHtml(article.sourceName)}
+                        </a>
+                    </div>
+                `;
+                lucide.createIcons({ root: articleBody });
+            }
+        }
+        
+        function cleanHtmlContent(html) {
+            if (!html) return "<p>Contenu non disponible</p>";
+            
+            let cleaned = html;
+            
+            // Supprimer les scripts et iframes
+            cleaned = cleaned.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+            cleaned = cleaned.replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '');
+            
+            // Nettoyer les attributs de style superflus mais garder l'essentiel
+            cleaned = cleaned.replace(/style=["'][^"']*["']/gi, '');
+            
+            // S'assurer que les images ont des classes CSS
+            cleaned = cleaned.replace(/<img/gi, '<img class="rounded-xl max-w-full h-auto my-4" loading="lazy"');
+            
+            // Nettoyer les liens
+            cleaned = cleaned.replace(/<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/gi, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline"');
+            
+            return cleaned;
         }
         
         async function loadArticles() {
@@ -363,17 +566,11 @@
             const allFetchedArticles = [];
             
             for (const feedUrl of feeds) {
-                console.log(`Chargement du flux: ${feedUrl}`);
                 const articles = await fetchFeed(feedUrl);
                 if (articles && articles.length > 0) {
-                    console.log(`${articles.length} articles trouvés pour ${feedUrl}`);
                     allFetchedArticles.push(...articles);
-                } else {
-                    console.log(`Aucun article pour ${feedUrl}`);
                 }
             }
-            
-            console.log(`Total articles: ${allFetchedArticles.length}`);
             
             allFetchedArticles.sort((a, b) => {
                 const dateA = a.pubDate ? new Date(a.pubDate) : new Date(0);
@@ -387,7 +584,6 @@
             
             if (allArticles.length === 0) {
                 emptyState.classList.remove("hidden");
-                grid.innerHTML = "";
             } else {
                 renderArticles(allArticles);
             }
@@ -409,30 +605,40 @@
                 if (data && data.status === "ok" && data.items && data.items.length > 0) {
                     const sourceName = getSourceName(url);
                     
-                    return data.items.map(item => ({
-                        title: cleanText(item.title),
-                        link: item.link,
-                        description: cleanText((item.description || item.content || "").substring(0, 300)),
-                        pubDate: item.pubDate,
-                        imageUrl: item.thumbnail || extractImageFromText(item.description || item.content),
-                        sourceName: sourceName
-                    }));
+                    return data.items.map(item => {
+                        let imageUrl = null;
+                        
+                        if (item.thumbnail && item.thumbnail.startsWith("http")) {
+                            imageUrl = item.thumbnail;
+                        }
+                        
+                        if (!imageUrl && item.enclosure && item.enclosure.link) {
+                            imageUrl = item.enclosure.link;
+                        }
+                        
+                        if (!imageUrl) {
+                            const content = item.description || item.content || "";
+                            const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+                            if (imgMatch && imgMatch[1]) {
+                                imageUrl = imgMatch[1];
+                            }
+                        }
+                        
+                        return {
+                            title: cleanText(item.title),
+                            link: item.link,
+                            description: cleanText((item.description || item.content || "").substring(0, 300)),
+                            pubDate: item.pubDate,
+                            imageUrl: imageUrl,
+                            sourceName: sourceName
+                        };
+                    });
                 }
                 return [];
             } catch (error) {
                 console.error(`Erreur chargement ${url}:`, error);
                 return [];
             }
-        }
-        
-        function extractImageFromText(text) {
-            if (!text) return null;
-            const imgRegex = /<img[^>]+src=["']([^"']+)["']/i;
-            const match = text.match(imgRegex);
-            if (match && match[1] && match[1].startsWith("http")) {
-                return match[1];
-            }
-            return null;
         }
         
         function getSourceName(url) {
@@ -465,8 +671,6 @@
             cleaned = cleaned.replace(/&lsquo;/g, "'");
             cleaned = cleaned.replace(/&ldquo;/g, '"');
             cleaned = cleaned.replace(/&rdquo;/g, '"');
-            cleaned = cleaned.replace(/&oeil;/g, "œil");
-            cleaned = cleaned.replace(/&euro;/g, "€");
             return cleaned.trim();
         }
         
@@ -482,12 +686,10 @@
                 const description = article.description || "Cliquez pour lire l'article complet";
                 const title = article.title || "Article sans titre";
                 
-                const card = document.createElement("a");
-                card.href = article.link;
-                card.target = "_blank";
-                card.rel = "noopener noreferrer";
+                const card = document.createElement("div");
                 card.className = "article-card block bg-gray-900 rounded-xl overflow-hidden border border-gray-800 card-hover";
                 card.style.animationDelay = `${index * 0.05}s`;
+                card.onclick = () => showArticle(article);
                 card.innerHTML = `
                     <div class="relative h-48 overflow-hidden bg-gray-800">
                         <img src="${imageUrl}" 
@@ -498,7 +700,7 @@
                              onerror="this.src='${defaultImage}'; this.classList.add('loaded')">
                         <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent"></div>
                         <div class="absolute top-3 left-3">
-                            <span class="px-2 py-1 bg-black/60 backdrop-blur-sm rounded-lg text-xs font-medium text-blue-400 hover:scale-105 transition-transform">
+                            <span class="px-2 py-1 bg-black/60 backdrop-blur-sm rounded-lg text-xs font-medium text-blue-400">
                                 ${escapeHtml(article.sourceName)}
                             </span>
                         </div>
@@ -515,8 +717,8 @@
                             ${escapeHtml(description.substring(0, 120))}${description.length > 120 ? "..." : ""}
                         </p>
                         <div class="mt-4 pt-3 border-t border-gray-800 flex justify-between items-center">
-                            <span class="text-xs text-gray-500 flex items-center gap-1">📖 ${Math.max(1, Math.ceil(description.length / 500))} min</span>
-                            <span class="text-blue-400 text-sm flex items-center gap-1 group-hover:gap-2 transition-all">Lire <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                            <span class="text-xs text-gray-500">📖 ${Math.max(1, Math.ceil(description.length / 500))} min</span>
+                            <span class="text-blue-400 text-sm flex items-center gap-1">Lire l'article <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
                         </div>
                     </div>
                 `;
@@ -563,7 +765,9 @@
             timerInterval = setInterval(() => {
                 if (timerSeconds <= 0) {
                     timerSeconds = 300;
-                    if (!isLoading) loadArticles();
+                    if (!isLoading && document.getElementById("listView").classList.contains("hidden") === false) {
+                        loadArticles();
+                    }
                 } else {
                     timerSeconds--;
                     const minutes = Math.floor(timerSeconds / 60);
