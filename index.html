@@ -177,50 +177,6 @@
             color: #ffffff !important;
         }
         
-        .article-content h1, .article-content h2, .article-content h3, .article-content h4 {
-            color: #ffffff !important;
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
-            font-weight: 600;
-        }
-        
-        .article-content h1 { font-size: 1.8rem; }
-        .article-content h2 { font-size: 1.5rem; }
-        .article-content h3 { font-size: 1.3rem; }
-        
-        .article-content a {
-            color: #3b82f6 !important;
-            text-decoration: underline;
-        }
-        
-        .article-content ul, .article-content ol {
-            margin: 1rem 0;
-            padding-left: 2rem;
-            color: #ffffff !important;
-        }
-        
-        .article-content li {
-            margin: 0.5rem 0;
-            color: #ffffff !important;
-        }
-        
-        .article-content blockquote {
-            border-left: 4px solid #3b82f6;
-            padding-left: 1rem;
-            margin: 1rem 0;
-            color: #d1d5db !important;
-            font-style: italic;
-        }
-        
-        .article-content strong, .article-content b {
-            color: #ffffff !important;
-            font-weight: 700;
-        }
-        
-        .article-content em, .article-content i {
-            color: #e5e7eb !important;
-        }
-        
         .back-button {
             transition: all 0.3s ease;
         }
@@ -229,13 +185,24 @@
             transform: translateX(-4px);
         }
         
-        /* Style pour le contenu chargé */
-        #articleBody {
-            color: #ffffff;
+        /* Styles pour le quiz */
+        .quiz-option {
+            transition: all 0.3s ease;
         }
-        
-        #articleBody p, #articleBody span, #articleBody div, #articleBody li {
-            color: #ffffff;
+        .quiz-option:hover {
+            transform: translateX(8px);
+            background: rgba(59, 130, 246, 0.2);
+        }
+        .quiz-option.correct {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+        }
+        .quiz-option.wrong {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+        }
+        .score-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
         }
     </style>
 </head>
@@ -284,7 +251,7 @@
                             <i data-lucide="menu" class="w-5 h-5"></i>
                         </button>
                         
-                        <div class="flex-1 relative max-w-md">
+                        <div class="flex-1 relative max-w-md" id="searchContainer">
                             <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4"></i>
                             <input type="text" id="searchInput" placeholder="Rechercher un article..." 
                                 class="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-sm">
@@ -299,7 +266,7 @@
             
             <div class="flex-1 overflow-y-auto p-4 md:p-6" id="contentArea">
                 <div class="max-w-7xl mx-auto">
-                    <!-- Vue liste des articles -->
+                    <!-- Vue liste des articles / quiz -->
                     <div id="listView">
                         <div class="flex justify-between items-center mb-6">
                             <div>
@@ -307,7 +274,7 @@
                                     <i data-lucide="activity" class="text-blue-500 w-6 h-6 float-animation"></i>
                                     <span class="gradient-text">Tech - IT</span>
                                 </h2>
-                                <p class="text-gray-500 text-sm mt-1">Actualités IT - IT-Connect</p>
+                                <p class="text-gray-500 text-sm mt-1" id="categoryDescription">Actualités IT - IT-Connect</p>
                             </div>
                             <div class="bg-gray-800 px-3 py-1 rounded-lg">
                                 <span id="articleCount" class="text-sm text-gray-400">0 articles</span>
@@ -315,6 +282,7 @@
                         </div>
                         
                         <div id="articlesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                        <div id="quizContainer" class="hidden"></div>
                         <div id="skeletonLoader" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden"></div>
                         <div id="emptyState" class="hidden flex flex-col items-center justify-center py-20">
                             <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mb-4 animate-pulse">
@@ -331,12 +299,10 @@
                     <div id="articleView" class="hidden">
                         <button onclick="backToList()" class="back-button mb-6 flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-all bg-gray-800/50 px-4 py-2 rounded-lg">
                             <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                            <span>Retour aux articles</span>
+                            <span>Retour</span>
                         </button>
                         <div id="articleContent" class="article-view bg-gray-900 rounded-2xl border border-gray-800 p-6 md:p-10">
-                            <div id="articleBody">
-                                <!-- Contenu de l'article -->
-                            </div>
+                            <div id="articleBody"></div>
                         </div>
                     </div>
                 </div>
@@ -345,31 +311,161 @@
     </div>
 
     <script>
+        // ============================================
+        // QUESTIONS DU QUIZ - Réseau et Hardware niveau TSSR
+        // ============================================
+        const QUIZ_QUESTIONS = [
+            {
+                id: 1,
+                question: "Quelle est l'adresse IP de bouclage (loopback) ?",
+                options: ["127.0.0.1", "0.0.0.0", "255.255.255.255", "192.168.1.1"],
+                correct: 0,
+                explanation: "127.0.0.1 est l'adresse de bouclage utilisée pour tester la pile TCP/IP locale."
+            },
+            {
+                id: 2,
+                question: "Que signifie l'acronyme DHCP ?",
+                options: ["Dynamic Host Configuration Protocol", "Domain Host Control Protocol", "Data Handling Control Protocol", "Dynamic Hypertext Control Protocol"],
+                correct: 0,
+                explanation: "DHCP (Dynamic Host Configuration Protocol) permet d'attribuer automatiquement des adresses IP aux équipements réseau."
+            },
+            {
+                id: 3,
+                question: "Quel est le rôle d'un commutateur (switch) dans un réseau ?",
+                options: [
+                    "Connecter plusieurs réseaux différents",
+                    "Distribuer une connexion Internet sans fil",
+                    "Connecter plusieurs équipements sur un même réseau en utilisant les adresses MAC",
+                    "Attribuer des adresses IP automatiquement"
+                ],
+                correct: 2,
+                explanation: "Un switch connecte des équipements sur un même réseau en utilisant les adresses MAC pour acheminer les données."
+            },
+            {
+                id: 4,
+                question: "Quelle est la différence entre un disque SSD et un disque HDD ?",
+                options: [
+                    "Le SSD est plus lent que le HDD",
+                    "Le SSD n'a pas de parties mobiles et est plus rapide",
+                    "Le HDD est plus fiable que le SSD",
+                    "Ils fonctionnent exactement de la même manière"
+                ],
+                correct: 1,
+                explanation: "Le SSD utilise de la mémoire flash sans parties mobiles, ce qui le rend plus rapide et plus résistant aux chocs que le HDD."
+            },
+            {
+                id: 5,
+                question: "Que signifie l'acronyme DNS ?",
+                options: ["Domain Name System", "Data Network Service", "Dynamic Name Server", "Digital Network System"],
+                correct: 0,
+                explanation: "Le DNS (Domain Name System) traduit les noms de domaine en adresses IP."
+            },
+            {
+                id: 6,
+                question: "Quel est le rôle de la RAM dans un ordinateur ?",
+                options: [
+                    "Stocker les données de manière permanente",
+                    "Exécuter les calculs du processeur",
+                    "Stocker temporairement les données en cours d'utilisation",
+                    "Gérer les connexions réseau"
+                ],
+                correct: 2,
+                explanation: "La RAM (Random Access Memory) stocke temporairement les données et programmes en cours d'utilisation pour un accès rapide."
+            },
+            {
+                id: 7,
+                question: "À quoi sert un routeur ?",
+                options: [
+                    "Connecter des équipements sur un même réseau",
+                    "Relier différents réseaux entre eux et acheminer les données",
+                    "Amplifier le signal Wi-Fi",
+                    "Protéger le réseau contre les virus"
+                ],
+                correct: 1,
+                explanation: "Un routeur relie différents réseaux (comme le réseau local et Internet) et achemine les paquets de données."
+            },
+            {
+                id: 8,
+                question: "Qu'est-ce que le BIOS/UEFI ?",
+                options: [
+                    "Un système d'exploitation",
+                    "Un logiciel de bureau à distance",
+                    "Un firmware qui initialise le matériel au démarrage",
+                    "Un type de processeur"
+                ],
+                correct: 2,
+                explanation: "Le BIOS/UEFI est le firmware qui initialise le matériel et lance le système d'exploitation au démarrage."
+            },
+            {
+                id: 9,
+                question: "Quel est le port par défaut du protocole HTTP ?",
+                options: ["80", "443", "21", "22"],
+                correct: 0,
+                explanation: "Le port 80 est utilisé par défaut pour le trafic HTTP non sécurisé."
+            },
+            {
+                id: 10,
+                question: "Qu'est-ce qu'une adresse MAC ?",
+                options: [
+                    "Une adresse IP publique",
+                    "Une adresse unique attribuée à chaque interface réseau",
+                    "Un mot de passe Wi-Fi",
+                    "Un type de câble réseau"
+                ],
+                correct: 1,
+                explanation: "L'adresse MAC (Media Access Control) est une adresse unique attribuée à chaque carte réseau."
+            }
+        ];
+        
+        let quizState = {
+            currentQuestionIndex: 0,
+            score: 0,
+            answers: [],
+            quizCompleted: false
+        };
+        
         const CATEGORIES = {
             tech_it: {
                 name: "Tech - IT",
                 icon: "monitor",
-                feeds: ["https://www.it-connect.fr/feed/"]
+                description: "Actualités IT - IT-Connect",
+                feeds: ["https://www.it-connect.fr/feed/"],
+                isQuiz: false
+            },
+            revision: {
+                name: "Revision IT",
+                icon: "graduation-cap",
+                description: "Quiz réseau et hardware - Niveau TSSR",
+                feeds: [],
+                isQuiz: true
             },
             android: {
                 name: "Android",
                 icon: "smartphone",
-                feeds: ["https://www.frandroid.com/feed", "https://www.phonandroid.com/feed"]
+                description: "Actualités Android",
+                feeds: ["https://www.frandroid.com/feed", "https://www.phonandroid.com/feed"],
+                isQuiz: false
             },
             apple: {
                 name: "Apple",
                 icon: "apple",
-                feeds: ["https://www.iphoneaddict.fr/feed", "https://www.mac4ever.com/feed"]
+                description: "Actualités Apple",
+                feeds: ["https://www.iphoneaddict.fr/feed", "https://www.mac4ever.com/feed"],
+                isQuiz: false
             },
             linux: {
                 name: "Linux",
                 icon: "terminal",
-                feeds: ["https://linuxfr.org/news.atom", "https://www.it-connect.fr/category/linux/feed/", "https://www.nextinpact.com/linux/feed"]
+                description: "Actualités Linux",
+                feeds: ["https://linuxfr.org/news.atom", "https://www.it-connect.fr/category/linux/feed/", "https://www.nextinpact.com/linux/feed"],
+                isQuiz: false
             },
             cyber: {
                 name: "Cybersécurité",
                 icon: "shield",
-                feeds: ["https://www.it-connect.fr/category/cybersecurite/feed/", "https://www.zataz.com/feed/"]
+                description: "Actualités Cybersécurité",
+                feeds: ["https://www.it-connect.fr/category/cybersecurite/feed/", "https://www.zataz.com/feed/"],
+                isQuiz: false
             }
         };
         
@@ -381,6 +477,7 @@
         
         const DEFAULT_IMAGES = {
             tech_it: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&h=400&fit=crop",
+            revision: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&h=400&fit=crop",
             android: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop",
             apple: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=600&h=400&fit=crop",
             linux: "https://images.unsplash.com/photo-1629654291663-b91ad427698f?w=600&h=400&fit=crop",
@@ -413,12 +510,141 @@
             if (isLoading || currentCategory === categoryKey) return;
             currentCategory = categoryKey;
             buildMenu();
+            
             const cat = CATEGORIES[categoryKey];
             document.getElementById("categoryTitle").innerHTML = `<i data-lucide="${cat.icon}" class="text-blue-500 w-6 h-6 float-animation"></i><span class="gradient-text">${cat.name}</span>`;
+            document.getElementById("categoryDescription").textContent = cat.description;
             lucide.createIcons();
             document.getElementById("searchInput").value = "";
             backToList();
-            loadArticles();
+            
+            // Réinitialiser le quiz si on revient sur l'onglet revision
+            if (cat.isQuiz) {
+                resetQuiz();
+                showQuizView();
+            } else {
+                hideQuizView();
+                loadArticles();
+            }
+        }
+        
+        function resetQuiz() {
+            quizState = {
+                currentQuestionIndex: 0,
+                score: 0,
+                answers: [],
+                quizCompleted: false
+            };
+        }
+        
+        function showQuizView() {
+            document.getElementById("articlesGrid").classList.add("hidden");
+            document.getElementById("skeletonLoader").classList.add("hidden");
+            document.getElementById("emptyState").classList.add("hidden");
+            document.getElementById("searchContainer").classList.add("hidden");
+            document.getElementById("articleCount").parentElement.classList.add("hidden");
+            
+            const quizContainer = document.getElementById("quizContainer");
+            quizContainer.classList.remove("hidden");
+            renderQuiz();
+        }
+        
+        function hideQuizView() {
+            document.getElementById("articlesGrid").classList.remove("hidden");
+            document.getElementById("searchContainer").classList.remove("hidden");
+            document.getElementById("articleCount").parentElement.classList.remove("hidden");
+            document.getElementById("quizContainer").classList.add("hidden");
+        }
+        
+        function renderQuiz() {
+            const quizContainer = document.getElementById("quizContainer");
+            
+            if (quizState.quizCompleted) {
+                const scorePercent = (quizState.score / QUIZ_QUESTIONS.length) * 100;
+                quizContainer.innerHTML = `
+                    <div class="score-card rounded-2xl p-8 text-center border border-blue-500/30">
+                        <i data-lucide="trophy" class="w-16 h-16 text-yellow-500 mx-auto mb-4"></i>
+                        <h2 class="text-2xl font-bold text-white mb-2">Quiz terminé !</h2>
+                        <p class="text-3xl font-bold text-blue-400 mb-4">${quizState.score} / ${QUIZ_QUESTIONS.length}</p>
+                        <p class="text-gray-300 mb-6">Score : ${scorePercent}%</p>
+                        <button onclick="resetQuizAndRestart()" class="px-6 py-3 bg-blue-500/20 hover:bg-blue-500/30 rounded-lg text-blue-400 transition-all">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4 inline mr-2"></i>
+                            Recommencer le quiz
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons({ root: quizContainer });
+                return;
+            }
+            
+            const question = QUIZ_QUESTIONS[quizState.currentQuestionIndex];
+            const currentAnswer = quizState.answers[quizState.currentQuestionIndex];
+            
+            quizContainer.innerHTML = `
+                <div class="bg-gray-900 rounded-2xl border border-gray-800 p-6 md:p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <span class="text-sm text-gray-400">Question ${quizState.currentQuestionIndex + 1}/${QUIZ_QUESTIONS.length}</span>
+                        <span class="text-sm text-blue-400">Score: ${quizState.score}</span>
+                    </div>
+                    <div class="w-full bg-gray-800 rounded-full h-2 mb-8">
+                        <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-300" style="width: ${((quizState.currentQuestionIndex + 1) / QUIZ_QUESTIONS.length) * 100}%"></div>
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-semibold text-white mb-6">${escapeHtml(question.question)}</h3>
+                    <div class="space-y-3">
+                        ${question.options.map((option, idx) => {
+                            let additionalClass = "";
+                            if (currentAnswer !== undefined) {
+                                if (idx === question.correct) additionalClass = "correct border-green-500";
+                                else if (idx === currentAnswer && idx !== question.correct) additionalClass = "wrong border-red-500";
+                            }
+                            return `
+                                <div onclick="selectAnswer(${idx})" class="quiz-option p-4 rounded-lg border border-gray-700 cursor-pointer transition-all ${additionalClass} ${currentAnswer !== undefined ? 'pointer-events-none' : ''}">
+                                    <span class="text-gray-200">${String.fromCharCode(65 + idx)}. ${escapeHtml(option)}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    ${currentAnswer !== undefined ? `
+                        <div class="mt-6 p-4 bg-blue-500/10 rounded-lg border border-blue-500/30">
+                            <p class="text-blue-400 font-semibold mb-1">📖 Explication :</p>
+                            <p class="text-gray-300">${escapeHtml(question.explanation)}</p>
+                        </div>
+                        <button onclick="nextQuestion()" class="mt-6 px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-lg text-white transition-all w-full">
+                            ${quizState.currentQuestionIndex === QUIZ_QUESTIONS.length - 1 ? 'Voir les résultats' : 'Question suivante'}
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+            lucide.createIcons({ root: quizContainer });
+        }
+        
+        function selectAnswer(selectedIndex) {
+            if (quizState.answers[quizState.currentQuestionIndex] !== undefined) return;
+            
+            const question = QUIZ_QUESTIONS[quizState.currentQuestionIndex];
+            const isCorrect = selectedIndex === question.correct;
+            
+            quizState.answers[quizState.currentQuestionIndex] = selectedIndex;
+            if (isCorrect) {
+                quizState.score++;
+            }
+            
+            renderQuiz();
+        }
+        
+        function nextQuestion() {
+            if (quizState.currentQuestionIndex + 1 < QUIZ_QUESTIONS.length) {
+                quizState.currentQuestionIndex++;
+                renderQuiz();
+            } else {
+                quizState.quizCompleted = true;
+                renderQuiz();
+            }
+        }
+        
+        function resetQuizAndRestart() {
+            resetQuiz();
+            renderQuiz();
         }
         
         function backToList() {
@@ -426,6 +652,11 @@
             document.getElementById("articleView").classList.add("hidden");
             document.getElementById("searchInput").disabled = false;
             document.getElementById("searchInput").placeholder = "Rechercher un article...";
+            
+            const cat = CATEGORIES[currentCategory];
+            if (cat.isQuiz) {
+                showQuizView();
+            }
         }
         
         function showArticle(article) {
@@ -468,6 +699,7 @@
             }, 500);
         }
         
+        // Les fonctions loadArticles, fetchFeed, renderArticles, etc. restent identiques
         async function loadArticles() {
             if (isLoading) return;
             isLoading = true;
@@ -646,6 +878,16 @@
         
         function toggleSidebar() { document.getElementById("sidebar").classList.toggle("-translate-x-full"); document.getElementById("overlay").classList.toggle("hidden"); }
         function escapeHtml(text) { if (!text) return ""; const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
+        
+        // Exposer les fonctions globalement pour les onclick
+        window.selectAnswer = selectAnswer;
+        window.nextQuestion = nextQuestion;
+        window.resetQuizAndRestart = resetQuizAndRestart;
+        window.showArticle = showArticle;
+        window.backToList = backToList;
+        window.refreshCurrentCategory = refreshCurrentCategory;
+        window.toggleSidebar = toggleSidebar;
+        window.filterArticles = filterArticles;
         
         document.addEventListener("DOMContentLoaded", init);
     </script>
