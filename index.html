@@ -220,9 +220,9 @@
                         <div>
                             <h2 id="categoryTitle" class="text-2xl font-bold flex items-center gap-2">
                                 <i data-lucide="activity" class="text-blue-500 w-6 h-6 float-animation"></i>
-                                <span class="gradient-text">Windows</span>
+                                <span class="gradient-text">Tech - IT</span>
                             </h2>
-                            <p class="text-gray-500 text-sm mt-1">Actualités technologiques françaises</p>
+                            <p class="text-gray-500 text-sm mt-1">Actualités IT - IT-Connect</p>
                         </div>
                         <div class="bg-gray-800 px-3 py-1 rounded-lg">
                             <span id="articleCount" class="text-sm text-gray-400">0 articles</span>
@@ -247,16 +247,14 @@
 
     <script>
         // ============================================
-        // CATÉGORIES - UNIQUEMENT DES SOURCES FRANÇAISES
+        // CATÉGORIES - TECH-IT AVEC UNIQUEMENT IT-CONNECT
         // ============================================
         const CATEGORIES = {
-            windows: {
-                name: "Windows",
-                icon: "layout-grid",
+            tech_it: {
+                name: "Tech - IT",
+                icon: "monitor",
                 feeds: [
-                    "https://www.it-connect.fr/category/windows-11/feed/",
-                    "https://www.it-connect.fr/category/windows-10/feed/",
-                    "https://www.crabe-info.com/feed/"
+                    "https://www.it-connect.fr/feed/"
                 ]
             },
             android: {
@@ -294,14 +292,14 @@
             }
         };
         
-        let currentCategory = "windows";
+        let currentCategory = "tech_it";
         let allArticles = [];
         let isLoading = false;
         let timerSeconds = 300;
         let timerInterval = null;
         
         const DEFAULT_IMAGES = {
-            windows: "https://images.unsplash.com/photo-1574169208507-84376144848b?w=600&h=400&fit=crop",
+            tech_it: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&h=400&fit=crop",
             android: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop",
             apple: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=600&h=400&fit=crop",
             linux: "https://images.unsplash.com/photo-1629654291663-b91ad427698f?w=600&h=400&fit=crop",
@@ -365,11 +363,17 @@
             const allFetchedArticles = [];
             
             for (const feedUrl of feeds) {
+                console.log(`Chargement du flux: ${feedUrl}`);
                 const articles = await fetchFeed(feedUrl);
                 if (articles && articles.length > 0) {
+                    console.log(`${articles.length} articles trouvés pour ${feedUrl}`);
                     allFetchedArticles.push(...articles);
+                } else {
+                    console.log(`Aucun article pour ${feedUrl}`);
                 }
             }
+            
+            console.log(`Total articles: ${allFetchedArticles.length}`);
             
             allFetchedArticles.sort((a, b) => {
                 const dateA = a.pubDate ? new Date(a.pubDate) : new Date(0);
@@ -404,6 +408,7 @@
                 
                 if (data && data.status === "ok" && data.items && data.items.length > 0) {
                     const sourceName = getSourceName(url);
+                    
                     return data.items.map(item => ({
                         title: cleanText(item.title),
                         link: item.link,
@@ -432,7 +437,6 @@
         
         function getSourceName(url) {
             if (url.includes("it-connect")) return "IT-Connect";
-            if (url.includes("crabe-info")) return "Crabe Info";
             if (url.includes("frandroid")) return "Frandroid";
             if (url.includes("phonandroid")) return "PhonAndroid";
             if (url.includes("iphoneaddict")) return "iPhoneAddict";
@@ -470,7 +474,7 @@
             const grid = document.getElementById("articlesGrid");
             grid.innerHTML = "";
             
-            const defaultImage = DEFAULT_IMAGES[currentCategory] || DEFAULT_IMAGES.windows;
+            const defaultImage = DEFAULT_IMAGES[currentCategory] || DEFAULT_IMAGES.tech_it;
             
             articles.forEach((article, index) => {
                 const date = formatDate(article.pubDate);
